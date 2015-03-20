@@ -1,0 +1,14 @@
+Django==1.7.6
+-e git+https://github.com/apendleton/djmicro.git#egg=djmicro
+
+-e git+https://github.com/influence-usa/python-opencivicdata-django.git@disclosures#egg=opencivicdata
+git+https://github.com/apendleton/ocd_hack.git
+
+-e git+https://github.com/sunlightlabs/dryrub.git#egg=dryrub
+
+jsonfield
+djorm-pgarray
+django-uuidfield
+psycopg2
+django-braces
+shortuuid

@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+<body>
+    {% for obj in object_list %}
+    {{ obj.start_time }}<br />
+    {{ obj.clients.0.name }}<br />
+    {{ obj.registrants.0.name }}<br />
+    {{ obj.issues }}<br />
+    <a href="/lobbying/disclosures/{{ obj.short_uuid }}">View registration</a><br /><br />
+
+    {% endfor %}
+</body>
+</html>
