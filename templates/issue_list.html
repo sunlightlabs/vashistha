@@ -1,0 +1,8 @@
+<!doctype html>
+<html>
+<body>
+{% for issue in object_list %}
+    <a href="{% url 'issue-detail' issue.slug %}">{{ issue.description }}</a><br />
+{% endfor %}
+</body>
+</html>
