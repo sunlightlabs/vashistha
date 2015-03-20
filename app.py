@@ -81,5 +81,31 @@ class IssueView(DisclosureListView):
         context_data['object'] = issues_by_slug[self.kwargs['slug']]
         return context_data
 
+
+## Organizations (clients/registrants)
+
+class OrganizationListView(ListView):
+    template_name = 'templates/organization_list.html'
+
+    org_type = None
+    model = None
+
+    def get_context_data(self, *args, **kwargs):
+        context_data = super(OrganizationListView, self).get_context_data(*args, **kwargs)
+        context_data['orgs_by_alpha'] = [(letter, list(group)) for letter, group in itertools.groupby(self.model.objects.all().order_by('name'), key=lambda org: org.name[0].upper())]
+        context_data['org_type'] = self.org_type
+        return context_data
+
+@djmicro.route(r'^lobbying/registrants$', name='registrant-list')
+class RegistrantListView(OrganizationListView):
+    model = Registrant
+    org_type = 'registrant'
+
+@djmicro.route(r'^lobbying/clients$', name='registrant-list')
+class RegistrantListView(OrganizationListView):
+    model = Client
+    org_type = 'client'
+
+# run the site
 if __name__ == '__main__':
     djmicro.run()
