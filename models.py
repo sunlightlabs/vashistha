@@ -1,5 +1,6 @@
 import itertools
 from opencivicdata.models import *
+from django.db import models
 
 import uuid, shortuuid
 
@@ -18,12 +19,19 @@ class ShortUUIDMixin(object):
     def filter_by_short_uuid(cls, short_uuid):
         return cls.objects.filter(id='ocd-%s/%s' % (cls._meta.get_field_by_name('id')[0].ocd_type, str(shortuuid.decode(short_uuid))))
 
+
+## Lobbying registration
+
+class LobbyingRegistrationManager(models.Manager):
+    def get_queryset(self):
+        return super(LobbyingRegistrationManager, self).get_queryset().filter(disclosurerelatedentity__disclosure__classification="lobbying", classification="registration")
+
 class LobbyingRegistration(Event, ShortUUIDMixin):
     class Meta:
         proxy = True
         app_label = 'opencivicdata'
 
-    objects = Event.objects.filter(disclosurerelatedentity__disclosure__classification="lobbying", classification="registration").as_manager()
+    objects = LobbyingRegistrationManager()
 
     @property
     def clients(self):
@@ -41,26 +49,48 @@ class LobbyingRegistration(Event, ShortUUIDMixin):
     def issues(self):
         return list(itertools.chain.from_iterable(([issues_by_code[subject] for subject in item.subjects] for item in self.agenda.all())))
 
+
+## Lobbyist
+
+class LobbyistManager(models.Manager):
+    def get_queryset(self):
+        return super(LobbyistManager, self).get_queryset().filter(eventparticipant__note="lobbyist")
+
 class Lobbyist(Person, ShortUUIDMixin):
     class Meta:
         proxy = True
         app_label = 'opencivicdata'
 
-    objects = Person.objects.filter(eventparticipant__note="lobbyist").as_manager()
+    objects = LobbyistManager()
+
+
+## Registrant
+
+class RegistrantManager(models.Manager):
+    def get_queryset(self):
+        return super(RegistrantManager, self).get_queryset().filter(eventparticipant__note="registrant")
 
 class Registrant(Organization, ShortUUIDMixin):
     class Meta:
         proxy = True
         app_label = 'opencivicdata'
 
-    objects = Organization.objects.filter(eventparticipant__note="registrant").as_manager()
+    objects = RegistrantManager()
+
+
+## Client
+
+class ClientManager(models.Manager):
+    def get_queryset(self):
+        return super(ClientManager, self).get_queryset().filter(eventparticipant__note="client")
 
 class Client(Organization, ShortUUIDMixin):
     class Meta:
         proxy = True
         app_label = 'opencivicdata'
 
-    objects = Organization.objects.filter(eventparticipant__note="client").as_manager()
+    objects = ClientManager()
+
 
 ## Issues -- not really models, but same idea
 from sopr_lobbying_reference import GENERAL_ISSUE_CODES
