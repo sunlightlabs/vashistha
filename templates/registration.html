@@ -2,9 +2,13 @@
 <html>
 <body>
     {{ object.start_time }}<br />
-    {{ object.clients.0.name }}<br />
-    {{ object.registrants.0.name }}<br />
-    {{ object.lobbyists }}
-    {{ object.issues }}<br />
+    <a href="{% url 'client-detail' object.clients.0.name|slugify object.clients.0.short_uuid %}">{{ object.clients.0.name }}</a><br />
+    <a href="{% url 'registrant-detail' object.registrants.0.name|slugify object.registrants.0.short_uuid %}">{{ object.registrants.0.name }}</a><br />
+    {% for lobbyist in object.lobbyists %}
+        <a href="">{{ lobbyist.name }}</a><br />
+    {% endfor %}
+    {% for issue in object.issues %}
+        <a href="{% url 'issue-detail' issue.slug %}">{{ issue.description }}</a>
+    {% endfor %}
 </body>
 </html>
