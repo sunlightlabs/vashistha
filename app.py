@@ -16,6 +16,7 @@ from django.views.generic import TemplateView, ListView
 from django.http import Http404
 from braces.views import OrderableListMixin
 from models import *
+from django.db.models import Count, Max
 
 ## Disclosures
 
@@ -82,63 +83,83 @@ class IssueView(DisclosureListView):
         return context_data
 
 
-## Organizations (clients/registrants)
+## Participants (clients/registrants/lobbyists)
 
-class OrganizationListView(ListView):
-    template_name = 'templates/organization_list.html'
+class ParticipantListView(ListView):
+    template_name = 'templates/participant_list.html'
 
-    org_type = None
+    participant_type = None
     model = None
 
     def get_context_data(self, *args, **kwargs):
-        context_data = super(OrganizationListView, self).get_context_data(*args, **kwargs)
-        context_data['orgs_by_alpha'] = [(letter, list(group)) for letter, group in itertools.groupby(self.model.objects.all().order_by('name'), key=lambda org: org.name[0].upper())]
-        context_data['org_type'] = self.org_type
+        context_data = super(ParticipantListView, self).get_context_data(*args, **kwargs)
+        context_data['participants_by_alpha'] = [(letter, list(group)) for letter, group in itertools.groupby(self.model.objects.all().order_by('name'), key=lambda org: org.name[0].upper())]
+        context_data['participant_type'] = self.participant_type
         return context_data
 
 @djmicro.route(r'^lobbying/registrants$', name='registrant-list')
-class RegistrantListView(OrganizationListView):
+class RegistrantListView(ParticipantListView):
     model = Registrant
-    org_type = 'registrant'
+    participant_type = 'registrant'
 
 @djmicro.route(r'^lobbying/clients$', name='client-list')
-class ClientListView(OrganizationListView):
+class ClientListView(ParticipantListView):
     model = Client
-    org_type = 'client'
+    participant_type = 'client'
 
 
-class OrganizationView(DisclosureListView):
-    template_name = 'templates/organization.html'
+class ParticipantView(DisclosureListView):
+    template_name = 'templates/participant.html'
 
-    org_type = None
+    participant_type = None
     model = None
 
     def get_queryset(self):
         try:
-            self.organization = self.model.filter_by_short_uuid(self.kwargs['short_uuid']).get()
+            self.participant = self.model.filter_by_short_uuid(self.kwargs['short_uuid']).get()
         except LobbyingRegistration.DoesNotExist:
             raise Http404(_("No %(verbose_name)s found matching the query") %
                           {'verbose_name': self.model._meta.verbose_name})
         
-        participation = EventParticipant.objects.filter(organization=self.organization, note=self.org_type)
-        return super(OrganizationView, self).get_queryset(initial_qs=LobbyingRegistration.objects.filter(participants__in=participation))
+        participation = EventParticipant.objects.filter(**{("person" if self.participant_type == 'lobbyist' else "organization"): self.participant, 'note': self.participant_type})
+        return super(ParticipantView, self).get_queryset(initial_qs=LobbyingRegistration.objects.filter(participants__in=participation))
 
     def get_context_data(self, *args, **kwargs):
-        context_data = super(OrganizationView, self).get_context_data(*args, **kwargs)
-        context_data['object'] = self.organization
-        context_data['org_type'] = self.org_type
+        context_data = super(ParticipantView, self).get_context_data(*args, **kwargs)
+        context_data['object'] = self.participant
+        context_data['participant_type'] = self.participant_type
         return context_data
 
 @djmicro.route(r'^lobbying/registrants/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+)$', name='registrant-detail')
-class RegistrantView(OrganizationView):
+class RegistrantView(ParticipantView):
     model = Registrant
-    org_type = 'registrant'
+    participant_type = 'registrant'
 
 @djmicro.route(r'^lobbying/clients/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+)$', name='client-detail')
-class ClientView(OrganizationView):
+class ClientView(ParticipantView):
     model = Client
-    org_type = 'client'
+    participant_type = 'client'
 
+@djmicro.route(r'^lobbying/lobbyists/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+)$', name='lobbyist-detail')
+class LobbyistView(ParticipantView):
+    model = Lobbyist
+    participant_type = 'lobbyist'
+
+# the lobbyist list view is its own thing
+@djmicro.route(r'^lobbying/lobbyists$', name='lobbyist-list')
+class LobbyistListView(ListView, OrderableListMixin):
+    paginate_by = 10
+    template_name = 'templates/lobbyist_list.html'
+    orderable_columns = ('name', 'num_registrations', 'most_recent')
+    orderable_columns_default = 'name'
+
+    def get_queryset(self):
+        # I *think* this annotation does the right thing, per https://docs.djangoproject.com/en/1.7/topics/db/aggregation/#order-of-annotate-and-filter-clauses , but should recheck with more data
+        qs = Lobbyist.objects.filter(eventparticipant__note="lobbyist", eventparticipant__event__classification="registration").annotate(
+            num_registrations=Count('eventparticipant__event'),
+            most_recent=Max('eventparticipant__event__start_time')
+        ).prefetch_related('eventparticipant_set', 'eventparticipant_set__event', 'eventparticipant_set__event__participants')
+        return self.get_ordered_queryset(qs)
 
 # run the site
 if __name__ == '__main__':

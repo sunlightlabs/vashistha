@@ -2,7 +2,7 @@ import itertools
 from opencivicdata.models import *
 from django.db import models
 
-import uuid, shortuuid
+import uuid, shortuuid, json
 
 def swap_type(obj, new_type):
     o = new_type()
@@ -60,6 +60,25 @@ class Lobbyist(Person, ShortUUIDMixin):
     class Meta:
         proxy = True
         app_label = 'opencivicdata'
+
+    @property
+    def registrations(self):
+        return [swap_type(participant.event, LobbyingRegistration) for participant in self.eventparticipant_set.all() if participant.note == "lobbyist" and participant.event.classification == "registration"]
+
+    @property
+    def most_recent_registration(self):
+        return max(self.registrations, key=lambda r: r.start_time)
+
+    @property
+    def registrants(self):
+        registrants = itertools.chain.from_iterable([[org for org in participant.event.participants.all() if org.note == 'registrant'] for participant in self.eventparticipant_set])
+        unique_registrants = {org.id : org for org in registrants}
+        return sorted(unique_registrants.values(), key=org.name)
+
+    @property
+    def covered_positions(self):
+        extras = json.loads(self.extras) if self.extras else {}
+        return [x.get('covered_official_position', None) for x in extras.get('lda_covered_official_positions', [])]
 
     objects = LobbyistManager()
 

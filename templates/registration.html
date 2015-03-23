@@ -5,7 +5,7 @@
     <a href="{% url 'client-detail' object.clients.0.name|slugify object.clients.0.short_uuid %}">{{ object.clients.0.name }}</a><br />
     <a href="{% url 'registrant-detail' object.registrants.0.name|slugify object.registrants.0.short_uuid %}">{{ object.registrants.0.name }}</a><br />
     {% for lobbyist in object.lobbyists %}
-        <a href="">{{ lobbyist.name }}</a><br />
+        <a href="{% url 'lobbyist-detail' lobbyist.name|slugify lobbyist.short_uuid %}">{{ lobbyist.name }}</a><br />
     {% endfor %}
     {% for issue in object.issues %}
         <a href="{% url 'issue-detail' issue.slug %}">{{ issue.description }}</a>

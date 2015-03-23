@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<body>
+{% for obj in object_list %}
+<a href="{% url 'lobbyist-detail' obj.name|slugify obj.short_uuid %}">{{ obj.name }}</a><br />
+
+{{ obj.covered_positions|join:"<br />" }}
+
+{% for registrant in obj.registrants %}
+<a href="{% url 'registrant-detail' registrant.name|slugify registrant.short_uuid %}">{{ registrant.name }}</a><br />
+{% endfor %}
+
+{% with obj.most_recent_registration as mr %}
+<a href="{% url 'registration-detail' mr.short_uuid %}">{{ mr.start_time }}</a><br />
+{% endwith %}
+
+{{ obj.num_registrations }}<br /><br />
+
+{% endfor %}
+</body>
+</html>

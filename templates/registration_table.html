@@ -1,7 +1,11 @@
 {% for obj in object_list %}
 {{ obj.start_time }}<br />
 <a href="{% url 'client-detail' obj.clients.0.name|slugify obj.clients.0.short_uuid %}">{{ obj.clients.0.name }}</a><br />
+
+{% if obj.registrants %}
 <a href="{% url 'registrant-detail' obj.registrants.0.name|slugify obj.registrants.0.short_uuid %}">{{ obj.registrants.0.name }}<br />
+{% endif %}
+
 {% for issue in obj.issues %}
     <a href="{% url 'issue-detail' issue.slug %}">{{ issue.description }}</a>
 {% endfor %}<br />
