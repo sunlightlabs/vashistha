@@ -1,14 +1,33 @@
-{% for obj in object_list %}
-{{ obj.start_time }}<br />
-<a href="{% url 'client-detail' obj.clients.0.name|slugify obj.clients.0.short_uuid %}">{{ obj.clients.0.name }}</a><br />
+<table id="mainPageTable">
+    <thead>
+        <tr id="titles">
+            <th>Date</th>
+            <th>Registrant</th>
+            <th>Client</th>
+            <th>Issues</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for obj in object_list %}
+        <tr class="{% cycle 'even' 'odd' %}">
+            <td>{{ obj.start_time }}</td>
+            <td><a href="{% url 'client-detail' obj.clients.0.name|slugify obj.clients.0.short_uuid %}">{{ obj.clients.0.name }}</a></td>
 
-{% if obj.registrants %}
-<a href="{% url 'registrant-detail' obj.registrants.0.name|slugify obj.registrants.0.short_uuid %}">{{ obj.registrants.0.name }}<br />
-{% endif %}
+            <td>
+            {% if obj.registrants %}
+            <a href="{% url 'registrant-detail' obj.registrants.0.name|slugify obj.registrants.0.short_uuid %}">{{ obj.registrants.0.name }}
+            {% endif %}
+            </td>
 
-{% for issue in obj.issues %}
-    <a href="{% url 'issue-detail' issue.slug %}">{{ issue.description }}</a>
-{% endfor %}<br />
-<a href="{% url 'registration-detail' obj.short_uuid %}">View registration</a><br /><br />
-
-{% endfor %}
+            <td>
+            {% for issue in obj.issues %}
+                <a href="{% url 'issue-detail' issue.slug %}">{{ issue.description }}</a>
+            {% endfor %}
+            </td>
+            
+            <td><a href="{% url 'registration-detail' obj.short_uuid %}">View registration</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

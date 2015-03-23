@@ -1,0 +1,35 @@
+{% extends "dryrub/base.html" %}
+{% load staticfiles %}
+
+{% block sitecss %}
+<link rel="stylesheet" href="{% static 'vashistha_style.css' %}" />
+{% endblock sitecss %}
+
+{# override search #}
+{% block search %}{% endblock search %}
+
+{% block main %}
+
+<div id="contentHeader" class="clearfix">
+    <h2 class="RTh2">Real-Time Lobbying Registrations</h2>
+    </h2>
+</div>
+
+{% block vashistha_nav %}
+<nav id="rt_nav" class="realtimesubnav clearfix">
+    <ul>
+        <li class="first"><a href="/lobbying/registrations">Browse registrations</a></li>
+        <li><a href="/lobbying/registrants">Browse registrants</a></li>
+        <li><a href="/lobbying/lobbyists">Browse lobbyists</a></li>
+        <li><a href="/lobbying/clients">Browse clients</a></li>
+        <li><a href="/lobbying/issues">Browse issues</a></li>
+    </ul>
+</nav>
+{% endblock %}
+
+<div class="module">
+{% block vashistha_main %}
+{% endblock %}
+</div>
+
+{% endblock %}

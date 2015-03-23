@@ -3,8 +3,12 @@ try:
 except:
     local_settings = None
 
-import djmicro
-djmicro.configure({'INSTALLED_APPS': ('opencivicdata',)}, local_settings=local_settings)
+import djmicro, os
+djmicro.configure({
+    'INSTALLED_APPS': ('opencivicdata', 'django.contrib.staticfiles', 'dryrub'),
+    'STATIC_URL': '/static/',
+    'STATICFILES_DIRS': (os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static'),)
+}, local_settings=local_settings)
 
 from django.shortcuts import render
 
