@@ -101,10 +101,44 @@ class RegistrantListView(OrganizationListView):
     model = Registrant
     org_type = 'registrant'
 
-@djmicro.route(r'^lobbying/clients$', name='registrant-list')
-class RegistrantListView(OrganizationListView):
+@djmicro.route(r'^lobbying/clients$', name='client-list')
+class ClientListView(OrganizationListView):
     model = Client
     org_type = 'client'
+
+
+class OrganizationView(DisclosureListView):
+    template_name = 'templates/organization.html'
+
+    org_type = None
+    model = None
+
+    def get_queryset(self):
+        try:
+            self.organization = self.model.filter_by_short_uuid(self.kwargs['short_uuid']).get()
+        except LobbyingRegistration.DoesNotExist:
+            raise Http404(_("No %(verbose_name)s found matching the query") %
+                          {'verbose_name': self.model._meta.verbose_name})
+        
+        participation = EventParticipant.objects.filter(organization=self.organization, note=self.org_type)
+        return super(OrganizationView, self).get_queryset(initial_qs=LobbyingRegistration.objects.filter(participants__in=participation))
+
+    def get_context_data(self, *args, **kwargs):
+        context_data = super(OrganizationView, self).get_context_data(*args, **kwargs)
+        context_data['object'] = self.organization
+        context_data['org_type'] = self.org_type
+        return context_data
+
+@djmicro.route(r'^lobbying/registrants/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+)$', name='registrant-detail')
+class RegistrantView(OrganizationView):
+    model = Registrant
+    org_type = 'registrant'
+
+@djmicro.route(r'^lobbying/clients/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+)$', name='client-detail')
+class ClientView(OrganizationView):
+    model = Client
+    org_type = 'client'
+
 
 # run the site
 if __name__ == '__main__':
