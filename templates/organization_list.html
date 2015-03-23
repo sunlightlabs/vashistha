@@ -1,0 +1,11 @@
+<!doctype html>
+<html>
+<body>
+{% for letter, orgs in orgs_by_alpha %}
+    <h2>{{ letter }}</h2>
+    {% for org in orgs %}
+        <a href="">{{ org.name }}</a><br />
+    {% endfor %}
+{% endfor %}
+</body>
+</html>
