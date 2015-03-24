@@ -10,19 +10,17 @@ djmicro.configure({
     'STATICFILES_DIRS': (os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static'),)
 }, local_settings=local_settings)
 
-from django.shortcuts import render
-
-@djmicro.route(r'^$')
-def index(request):
-    return render(request, 'templates/registration_list.html', {'id': id})
-
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, RedirectView
 from django.http import Http404
 from braces.views import OrderableListMixin
 from models import *
 from django.db.models import Count, Max
 
 ## Disclosures
+
+@djmicro.route(r'^$')
+class Index(RedirectView):
+    url = '/lobbying/registrations'
 
 @djmicro.route(r'^lobbying/registrations$', name='registration-list')
 class DisclosureListView(OrderableListMixin, ListView):
