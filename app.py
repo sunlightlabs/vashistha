@@ -16,14 +16,33 @@ from braces.views import OrderableListMixin
 from models import *
 from django.db.models import Count, Max
 
-## Disclosures
-
 @djmicro.route(r'^$')
 class Index(RedirectView):
     url = '/lobbying/registrations'
 
+class EnhancedOrderableListView(OrderableListMixin, ListView):
+    order_by_default = {}
+    order_mapping = {}
+
+    def get_ordered_queryset(self, queryset=None):
+        get_order_by = self.request.GET.get("order_by")
+
+        order_by = get_order_by if get_order_by in self.get_orderable_columns() else self.get_orderable_columns_default()
+
+        self.order_by = order_by
+        self.ordering = self.request.GET.get("ordering", self.order_by_default.get(self.order_by, "asc"))
+
+        order_by = self.order_mapping.get(order_by, order_by)
+        if order_by and self.ordering == "desc":
+            order_by = "-" + order_by
+
+        return queryset.order_by(order_by)
+
+
+## Disclosures
+
 @djmicro.route(r'^lobbying/registrations$', name='registration-list')
-class DisclosureListView(OrderableListMixin, ListView):
+class DisclosureListView(EnhancedOrderableListView):
     paginate_by = 10
     template_name = 'templates/registration_list.html'
     orderable_columns = ('start_time', 'client', 'registrant')
@@ -41,20 +60,6 @@ class DisclosureListView(OrderableListMixin, ListView):
         else:
             qs = initial_qs.prefetch_related('participants__organization', 'agenda')
         return self.get_ordered_queryset(qs)
-
-    def get_ordered_queryset(self, queryset=None):
-        get_order_by = self.request.GET.get("order_by")
-
-        order_by = get_order_by if get_order_by in self.get_orderable_columns() else self.get_orderable_columns_default()
-
-        self.order_by = order_by
-        self.ordering = self.request.GET.get("ordering", self.order_by_default.get(self.order_by, "asc"))
-
-        order_by = self.order_mapping.get(order_by, order_by)
-        if order_by and self.ordering == "desc":
-            order_by = "-" + order_by
-
-        return queryset.order_by(order_by)
 
     def paginate_queryset(self, queryset, page_size):
         paginator, page, object_list, is_paginated = super(DisclosureListView, self).paginate_queryset(queryset, page_size)
@@ -165,11 +170,12 @@ class LobbyistView(ParticipantView):
 
 # the lobbyist list view is its own thing
 @djmicro.route(r'^lobbying/lobbyists$', name='lobbyist-list')
-class LobbyistListView(OrderableListMixin, ListView):
+class LobbyistListView(EnhancedOrderableListView):
     paginate_by = 10
     template_name = 'templates/lobbyist_list.html'
     orderable_columns = ('name', 'num_registrations', 'most_recent')
     orderable_columns_default = 'name'
+    order_by_default = {'most_recent': 'desc', 'num_registrations': 'desc'}
 
     def get_queryset(self):
         # I *think* this annotation does the right thing, per https://docs.djangoproject.com/en/1.7/topics/db/aggregation/#order-of-annotate-and-filter-clauses , but should recheck with more data
