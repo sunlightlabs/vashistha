@@ -1,14 +1,41 @@
-<!doctype html>
-<html>
-<body>
-    {{ object.start_time }}<br />
-    <a href="{% url 'client-detail' object.clients.0.name|slugify object.clients.0.short_uuid %}">{{ object.clients.0.name }}</a><br />
-    <a href="{% url 'registrant-detail' object.registrants.0.name|slugify object.registrants.0.short_uuid %}">{{ object.registrants.0.name }}</a><br />
+{% extends "templates/vashistha_base.html" %}
+
+{% block vashistha_main %}
+<h3>Registration: {{ object.registrants.0.name }} for {{ object.clients.0.name }}</h3>
+<dl class="registration">
+    <dt>Date received:</dt>
+    <dd>{{ object.start_time|date:"F j, Y" }}</dd>
+
+    <dt>Client:</dt>
+    <dd><a href="{% url 'client-detail' object.clients.0.name|slugify object.clients.0.short_uuid %}">{{ object.clients.0.name }}</a></dd>
+
+    <dt>Registrant:</dt>
+    <dd><a href="{% url 'registrant-detail' object.registrants.0.name|slugify object.registrants.0.short_uuid %}">{{ object.registrants.0.name }}</a></dd>
+
+    <dt>Lobbyists:</dt>
+    <dd>
     {% for lobbyist in object.lobbyists %}
-        <a href="{% url 'lobbyist-detail' lobbyist.name|slugify lobbyist.short_uuid %}">{{ lobbyist.name }}</a><br />
+        <div class="dd-entry"><a href="{% url 'lobbyist-detail' lobbyist.name|slugify lobbyist.short_uuid %}">{{ lobbyist.name }}</a></div>
     {% endfor %}
+    </dd>
+
+    <dt>Issues:</dt>
+    <dd>
     {% for issue in object.issues %}
-        <a href="{% url 'issue-detail' issue.slug %}">{{ issue.description }}</a>
+        <div class="dd-entry"><a href="{% url 'issue-detail' issue.slug %}">{{ issue.description }}</a></div>
     {% endfor %}
-</body>
-</html>
+    </dd>
+
+    {% with object.sources.all as sources %}
+    {% if sources|length %}
+    <dt>Original filings:</dt>
+    <dd>
+    {% for source in sources %}
+        <div class="dd-entry"><a href="{{ source.url }}">{{ source.note }}</a></div>
+    {% endfor %}
+    </dd>
+    {% endif %}
+    {% endwith %}
+
+</dl>
+{% endblock %}

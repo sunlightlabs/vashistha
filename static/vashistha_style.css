@@ -63,3 +63,11 @@
     border: 1px solid #dcdcd8;
     margin-bottom: 20px;
 }
+
+.registration dd {
+    float: none;
+    clear: both;
+    margin-bottom: 12px;
+    width: auto !important;
+    text-align: left !important;
+}
