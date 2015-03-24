@@ -21,7 +21,14 @@
     <dt>Lobbyists:</dt>
     <dd>
     {% for lobbyist in object.lobbyists %}
-        <div class="dd-entry"><a href="{% url 'lobbyist-detail' lobbyist.slug lobbyist.short_uuid %}">{{ lobbyist.name }}</a></div>
+        <div class="dd-entry">
+            <a href="{% url 'lobbyist-detail' lobbyist.slug lobbyist.short_uuid %}">{{ lobbyist.name }}</a>
+            {% with lobbyist.covered_positions as covered_positions %}
+            {% if covered_positions %}
+                (covered position{{ covered_positions|pluralize }}: {{ covered_positions|join:" &bull; "}})
+            {% endif %}
+            {% endwith %}
+        </div>
     {% endfor %}
     </dd>
 

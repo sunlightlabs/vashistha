@@ -5,12 +5,12 @@
 {% block vashistha_main %}
 <h3>{{ participant_type|capfirst }}: {{ object.name }}</h3>
 <dl class="object-metadata">
-    {% with object.covered_positions as cp %}
-    {% if cp %}
-    <dt>Covered Position</dt>
+    {% with object.covered_positions as covered_positions %}
+    {% if covered_positions %}
+    <dt>Covered Position{{ covered_positions|pluralize }}</dt>
     <dd>
-        {% for position in cp %}
-            <div class="dd-entry">{{ position }}</div>
+        {% for covered_position in covered_positions %}
+            <div class="dd-entry">{{ covered_position }}</div>
         {% endfor %}
     </dd>
     {% endif %}
