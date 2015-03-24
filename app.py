@@ -184,6 +184,7 @@ class LobbyistView(ParticipantView):
     model = Lobbyist
     participant_type = 'lobbyist'
     section = 'lobbyists'
+    template_name = 'templates/lobbyist.html'
 
 # the lobbyist list view is its own thing
 @djmicro.route(r'^lobbying/lobbyists$', name='lobbyist-list')
@@ -191,7 +192,7 @@ class LobbyistListView(EnhancedOrderableListView):
     paginate_by = 10
     template_name = 'templates/lobbyist_list.html'
     orderable_columns = ('name', 'num_registrations', 'most_recent')
-    orderable_columns_default = 'name'
+    orderable_columns_default = 'most_recent'
     order_by_default = {'most_recent': 'desc', 'num_registrations': 'desc'}
     section = 'lobbyists'
 

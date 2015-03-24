@@ -1,0 +1,31 @@
+{% extends "templates/vashistha_base.html" %}
+
+{% block pagetitle %}{{ participant_type|capfirst }}: {{ object.name }} | {{ block.super }}{% endblock %}
+
+{% block vashistha_main %}
+<h3>{{ participant_type|capfirst }}: {{ object.name }}</h3>
+<dl class="object-metadata">
+    {% with object.covered_positions as cp %}
+    {% if cp %}
+    <dt>Covered Position</dt>
+    <dd>
+        {% for position in cp %}
+            <div class="dd-entry">{{ position }}</div>
+        {% endfor %}
+    </dd>
+    {% endif %}
+    {% endwith %}
+    
+    {% with object.registrants as registrants %}
+    {% if registrants %}
+    <dt>Registrants</dt>
+    <dd>
+        {% for registrant in registrants %}
+        <a href="{% url 'registrant-detail' registrant.name|slugify registrant.short_uuid %}">{{ registrant.name }}</a><br />
+        {% endfor %}
+    </dd>
+    {% endif %}
+    {% endwith %}
+</dl>
+{% include "templates/registration_table.html" %}
+{% endblock %}
