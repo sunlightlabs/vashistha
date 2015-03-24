@@ -1,5 +1,7 @@
 {% extends "templates/vashistha_base.html" %}
 
+{% block pagetitle %}Registration: {{ object.registrants.0.name }} for {{ object.clients.0.name }} | {{ block.super }}{% endblock %}
+
 {% block vashistha_main %}
 <h3>Registration: {{ object.registrants.0.name }} for {{ object.clients.0.name }}</h3>
 <dl class="registration">

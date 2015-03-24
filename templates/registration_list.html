@@ -1,6 +1,8 @@
 {% extends "templates/vashistha_base.html" %}
 
+{% block pagetitle %}Registrations | {{ block.super }}{% endblock %}
+
 {% block vashistha_main %}
-<h3>Latest registrations</h3>
+<h3>Registrations</h3>
 {% include "templates/registration_table.html" %}
 {% endblock %}

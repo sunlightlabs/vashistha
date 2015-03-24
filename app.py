@@ -20,6 +20,9 @@ from django.db.models import Count, Max
 class Index(RedirectView):
     url = '/lobbying/registrations'
 
+
+## Common parts
+
 class EnhancedOrderableListView(OrderableListMixin, ListView):
     order_by_default = {}
     order_mapping = {}
@@ -50,6 +53,8 @@ class DisclosureListView(EnhancedOrderableListView):
     order_by_default = {'start_time': 'desc'}
     order_mapping = {'client': 'name', 'registrant': 'name'}
 
+    section = "registrations"
+
     def get_queryset(self, initial_qs=None):
         if initial_qs is None:
             initial_qs = LobbyingRegistration.objects.all()
@@ -72,14 +77,17 @@ class DisclosureListView(EnhancedOrderableListView):
 @djmicro.route(r'^lobbying/registrations/(?P<short_uuid>\w+)$', name='registration-detail')
 class DisclosureView(TemplateView):
     template_name = 'templates/registration.html'
+    section = 'registrations'
 
     def get_context_data(self, short_uuid):
+        context = super(DisclosureView, self).get_context_data()
         try:
             obj = LobbyingRegistration.filter_by_short_uuid(short_uuid).prefetch_related('participants__organization', 'participants__person', 'agenda').get()
         except LobbyingRegistration.DoesNotExist:
             raise Http404(_("No %(verbose_name)s found matching the query") %
                           {'verbose_name': LobbyingRegistration._meta.verbose_name})
-        return {'object': obj}
+        context['object'] = obj
+        return context
 
 
 ## Issues
@@ -87,13 +95,17 @@ class DisclosureView(TemplateView):
 @djmicro.route(r'^lobbying/issues$', name='issue-list')
 class IssueListView(TemplateView):
     template_name = 'templates/issue_list.html'
+    section = 'issues'
 
     def get_context_data(self):
-        return {'object_list': sorted(GENERAL_ISSUE_CODES, key=lambda x: x['description'])}
+        context = super(IssueListView, self).get_context_data()
+        context['object_list'] = sorted(GENERAL_ISSUE_CODES, key=lambda x: x['description'])
+        return context
 
 @djmicro.route(r'^lobbying/issues/(?P<slug>[\w-]+)$', name='issue-detail')
 class IssueView(DisclosureListView):
     template_name = 'templates/issue.html'
+    section = 'issues'
 
     def get_queryset(self):
         issue = issues_by_slug[self.kwargs['slug']]
@@ -124,11 +136,13 @@ class ParticipantListView(ListView):
 class RegistrantListView(ParticipantListView):
     model = Registrant
     participant_type = 'registrant'
+    section = 'registrants'
 
 @djmicro.route(r'^lobbying/clients$', name='client-list')
 class ClientListView(ParticipantListView):
     model = Client
     participant_type = 'client'
+    section = 'clients'
 
 
 class ParticipantView(DisclosureListView):
@@ -157,16 +171,19 @@ class ParticipantView(DisclosureListView):
 class RegistrantView(ParticipantView):
     model = Registrant
     participant_type = 'registrant'
+    section = 'registrants'
 
 @djmicro.route(r'^lobbying/clients/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+)$', name='client-detail')
 class ClientView(ParticipantView):
     model = Client
     participant_type = 'client'
+    section = 'clients'
 
 @djmicro.route(r'^lobbying/lobbyists/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+)$', name='lobbyist-detail')
 class LobbyistView(ParticipantView):
     model = Lobbyist
     participant_type = 'lobbyist'
+    section = 'lobbyists'
 
 # the lobbyist list view is its own thing
 @djmicro.route(r'^lobbying/lobbyists$', name='lobbyist-list')
@@ -176,6 +193,7 @@ class LobbyistListView(EnhancedOrderableListView):
     orderable_columns = ('name', 'num_registrations', 'most_recent')
     orderable_columns_default = 'name'
     order_by_default = {'most_recent': 'desc', 'num_registrations': 'desc'}
+    section = 'lobbyists'
 
     def get_queryset(self):
         # I *think* this annotation does the right thing, per https://docs.djangoproject.com/en/1.7/topics/db/aggregation/#order-of-annotate-and-filter-clauses , but should recheck with more data

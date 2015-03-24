@@ -30,13 +30,13 @@
     margin-left: 25px;
     }
 
-#rt_nav li:hover, .documentation #rt_nav #documentation, .downloads #tr_nav #downloads, .api #rt_nav #api, .flexwidth #rt_nav #searchTD, .searchTD #rt_nav #searchTD{
-    font-weight: normal;
-    }
-
 #rt_nav li:hover {
    background-color: #FFF;
    padding: 0 15px;
+}
+
+#rt_nav li.current {
+    font-weight: bold;
 }
 
 .date-field {

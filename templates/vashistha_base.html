@@ -8,6 +8,8 @@
 {# override search #}
 {% block search %}{% endblock search %}
 
+{% block pagetitle %}Real-Time Lobbying | {% endblock %}
+
 {% block main %}
 
 <div id="contentHeader" class="clearfix">
@@ -18,11 +20,11 @@
 {% block vashistha_nav %}
 <nav id="rt_nav" class="realtimesubnav clearfix">
     <ul>
-        <li class="first"><a href="{% url 'registration-list' %}">Registrations</a></li>
-        <li><a href="{% url 'registrant-list' %}">Registrants</a></li>
-        <li><a href="{% url 'lobbyist-list' %}">Lobbyists</a></li>
-        <li><a href="{% url 'client-list' %}">Clients</a></li>
-        <li><a href="{% url 'issue-list' %}">Issues</a></li>
+        <li class="{% if view.section == 'registrations' %}current{% endif %} first"><a href="{% url 'registration-list' %}">Registrations</a></li>
+        <li class="{% if view.section == 'registrants' %}current{% endif %}"><a href="{% url 'registrant-list' %}">Registrants</a></li>
+        <li class="{% if view.section == 'lobbyists' %}current{% endif %}"><a href="{% url 'lobbyist-list' %}">Lobbyists</a></li>
+        <li class="{% if view.section == 'clients' %}current{% endif %}"><a href="{% url 'client-list' %}">Clients</a></li>
+        <li class="{% if view.section == 'issues' %}current{% endif %} last"><a href="{% url 'issue-list' %}">Issues</a></li>
     </ul>
 </nav>
 {% endblock %}
