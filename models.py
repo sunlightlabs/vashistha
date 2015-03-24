@@ -71,9 +71,9 @@ class Lobbyist(Person, ShortUUIDMixin):
 
     @property
     def registrants(self):
-        registrants = itertools.chain.from_iterable([[org for org in participant.event.participants.all() if org.note == 'registrant'] for participant in self.eventparticipant_set])
+        registrants = itertools.chain.from_iterable([[part.organization for part in participant.event.participants.all() if part.note == 'registrant'] for participant in self.eventparticipant_set.all()])
         unique_registrants = {org.id : org for org in registrants}
-        return sorted(unique_registrants.values(), key=org.name)
+        return [swap_type(registrant, Registrant) for registrant in sorted(unique_registrants.values(), key=lambda org: org.name)]
 
     @property
     def covered_positions(self):

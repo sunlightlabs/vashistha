@@ -5,7 +5,7 @@ except:
 
 import djmicro, os, re
 djmicro.configure({
-    'INSTALLED_APPS': ('opencivicdata', 'django.contrib.staticfiles', 'dryrub'),
+    'INSTALLED_APPS': ('opencivicdata', 'django.contrib.staticfiles', 'django.contrib.humanize', 'dryrub'),
     'STATIC_URL': '/static/',
     'STATICFILES_DIRS': (os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static'),)
 }, local_settings=local_settings)
@@ -200,7 +200,7 @@ class LobbyistListView(EnhancedOrderableListView):
         qs = Lobbyist.objects.filter(eventparticipant__note="lobbyist", eventparticipant__event__classification="registration").annotate(
             num_registrations=Count('eventparticipant__event'),
             most_recent=Max('eventparticipant__event__start_time')
-        ).prefetch_related('eventparticipant_set', 'eventparticipant_set__event', 'eventparticipant_set__event__participants')
+        ).prefetch_related('eventparticipant_set', 'eventparticipant_set__event', 'eventparticipant_set__event__participants', 'eventparticipant_set__event__participants__organization')
         return self.get_ordered_queryset(qs)
 
 # run the site

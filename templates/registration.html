@@ -11,8 +11,12 @@
     <dt>Client:</dt>
     <dd><a href="{% url 'client-detail' object.clients.0.name|slugify object.clients.0.short_uuid %}">{{ object.clients.0.name }}</a></dd>
 
+    {% with object.registrants as registrants %}
+    {% if registrants %}
     <dt>Registrant:</dt>
-    <dd><a href="{% url 'registrant-detail' object.registrants.0.name|slugify object.registrants.0.short_uuid %}">{{ object.registrants.0.name }}</a></dd>
+    <dd><a href="{% url 'registrant-detail' registrants.0.name|slugify registrants.0.short_uuid %}">{{ registrants.0.name }}</a></dd>
+    {% endif %}
+    {% endwith %}
 
     <dt>Lobbyists:</dt>
     <dd>

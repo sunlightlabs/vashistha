@@ -1,5 +1,7 @@
 {% extends "templates/vashistha_base.html" %}
 
+{% load humanize %}
+
 {% block pagetitle %}Lobbyists | {{ block.super }}{% endblock %}
 
 
@@ -49,7 +51,7 @@
       <span class="prev"></span>
     {% endif %}
 
-    <span class="pages">(page {{ page_obj.number }} of {{ paginator.num_pages }})</span>
+    <span class="pages">(page {{ page_obj.number }} of {{ paginator.num_pages|intcomma }})</span>
 
     {% if page_obj.number < paginator.num_pages %}
       <a href="?order_by={{ order_by }}&amp;ordering={{ ordering }}&amp;page={{ page_obj.number|add:1 }}" class="next">next &raquo;</a>
