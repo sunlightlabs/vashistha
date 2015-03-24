@@ -80,6 +80,11 @@ class Lobbyist(Person, ShortUUIDMixin):
         extras = json.loads(self.extras) if self.extras else {}
         return [x.get('covered_official_position', None) for x in extras.get('lda_covered_official_positions', [])]
 
+    @property
+    def slug(self):
+        slug = slugify(self.name)
+        return slug if slug else "-"
+
     objects = LobbyistManager()
 
 

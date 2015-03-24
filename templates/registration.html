@@ -15,7 +15,7 @@
     <dt>Lobbyists:</dt>
     <dd>
     {% for lobbyist in object.lobbyists %}
-        <div class="dd-entry"><a href="{% url 'lobbyist-detail' lobbyist.name|slugify lobbyist.short_uuid %}">{{ lobbyist.name }}</a></div>
+        <div class="dd-entry"><a href="{% url 'lobbyist-detail' lobbyist.slug lobbyist.short_uuid %}">{{ lobbyist.name }}</a></div>
     {% endfor %}
     </dd>
 
