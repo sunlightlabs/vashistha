@@ -1,9 +1,9 @@
-<table id="mainPageTable">
+<table id="mainPageTable" class="server-sortable" data-ordering="{{ ordering }}" data-order-by="{{ order_by }}">
     <thead>
         <tr id="titles">
-            <th>Date</th>
-            <th>Registrant</th>
-            <th>Client</th>
+            <th class="sort" data-label="start_time">Date</th>
+            <th class="sort" data-label="registrant">Registrant</th>
+            <th class="sort" data-label="client">Client</th>
             <th>Issues</th>
             <th></th>
         </tr>
@@ -11,12 +11,17 @@
     <tbody>
         {% for obj in object_list %}
         <tr class="{% cycle 'even' 'odd' %}">
-            <td>{{ obj.start_time }}</td>
-            <td><a href="{% url 'client-detail' obj.clients.0.name|slugify obj.clients.0.short_uuid %}">{{ obj.clients.0.name }}</a></td>
+            <td class="date-field">{{ obj.start_time|date:"M. j, Y" }}</td>
 
             <td>
             {% if obj.registrants %}
-            <a href="{% url 'registrant-detail' obj.registrants.0.name|slugify obj.registrants.0.short_uuid %}">{{ obj.registrants.0.name }}
+                <a href="{% url 'registrant-detail' obj.registrants.0.name|slugify obj.registrants.0.short_uuid %}">{{ obj.registrants.0.name }}
+            {% endif %}
+            </td>
+
+            <td>
+            {% if obj.clients %}
+                <a href="{% url 'client-detail' obj.clients.0.name|slugify obj.clients.0.short_uuid %}">{{ obj.clients.0.name }}</a>
             {% endif %}
             </td>
 
@@ -31,3 +36,21 @@
         {% endfor %}
     </tbody>
 </table>
+
+<div class="pagination">
+
+    {% if page_obj.number > 1 %}
+      <a href="?order_by={{ order_by }}&amp;ordering={{ ordering }}&amp;page={{ page_obj.number|add:-1 }}" class="prev">&laquo; previous</a>
+    {% else %}
+      <span class="prev"></span>
+    {% endif %}
+
+    <span class="pages">(page {{ page_obj.number }} of {{ paginator.num_pages }})</span>
+
+    {% if page_obj.number < paginator.num_pages %}
+      <a href="?order_by={{ order_by }}&amp;ordering={{ ordering }}&amp;page={{ page_obj.number|add:1 }}" class="next">next &raquo;</a>
+    {% else %}
+      <span class="next"></span>
+    {% endif %}
+
+</div>

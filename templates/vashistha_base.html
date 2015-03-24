@@ -18,11 +18,11 @@
 {% block vashistha_nav %}
 <nav id="rt_nav" class="realtimesubnav clearfix">
     <ul>
-        <li class="first"><a href="/lobbying/registrations">Browse registrations</a></li>
-        <li><a href="/lobbying/registrants">Browse registrants</a></li>
-        <li><a href="/lobbying/lobbyists">Browse lobbyists</a></li>
-        <li><a href="/lobbying/clients">Browse clients</a></li>
-        <li><a href="/lobbying/issues">Browse issues</a></li>
+        <li class="first"><a href="{% url 'registration-list' %}">Registrations</a></li>
+        <li><a href="{% url 'registrant-list' %}">Registrants</a></li>
+        <li><a href="{% url 'lobbyist-list' %}">Lobbyists</a></li>
+        <li><a href="{% url 'client-list' %}">Clients</a></li>
+        <li><a href="{% url 'issue-list' %}">Issues</a></li>
     </ul>
 </nav>
 {% endblock %}
@@ -32,4 +32,31 @@
 {% endblock %}
 </div>
 
+{% endblock %}
+
+{% block sitejs %}
+{{ block.super }}
+<script type="text/javascript">
+(function($) {
+  $('table.server-sortable').each(function() {
+    var $table = $(this);
+    var ordering = $table.attr('data-ordering'),
+        order_by = $table.attr('data-order-by');
+
+    $table.find('th.sort').each(function() {
+      var $th = $(this);
+      if ($th.attr('data-label') == order_by) {
+        $th.addClass(ordering == "asc" ? "tablesorter-headerAsc" : "tablesorter-headerDesc");
+        $th.on('click', function() {
+          document.location.search = "?order_by=" + order_by + "&ordering=" + (ordering == "asc" ? "desc" : "asc");
+        })
+      } else {
+        $th.on('click', function() {
+          document.location.search = "?order_by=" + $th.attr('data-label');
+        })
+      }
+    })
+  })
+})(jQuery);
+</script>
 {% endblock %}

@@ -38,3 +38,7 @@
    background-color: #FFF;
    padding: 0 15px;
 }
+
+.date-field {
+    min-width: 90px;
+}

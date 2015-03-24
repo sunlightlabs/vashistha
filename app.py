@@ -25,29 +25,44 @@ from django.db.models import Count, Max
 ## Disclosures
 
 @djmicro.route(r'^lobbying/registrations$', name='registration-list')
-class DisclosureListView(ListView, OrderableListMixin):
+class DisclosureListView(OrderableListMixin, ListView):
     paginate_by = 10
     template_name = 'templates/registration_list.html'
-    orderable_columns = ('start_time', 'name')
-    orderable_columns_default = '-start_time'
+    orderable_columns = ('start_time', 'client', 'registrant')
+    orderable_columns_default = 'start_time'
+    order_by_default = {'start_time': 'desc'}
+    order_mapping = {'client': 'name', 'registrant': 'name'}
 
     def get_queryset(self, initial_qs=None):
         if initial_qs is None:
             initial_qs = LobbyingRegistration.objects.all()
 
-        order_type = self.request.GET.get('order_type', 'start_time')
-        if order_type in ('client', 'registrant'):
-            qs = EventParticipant.objects.filter(event_id__in=initial_qs, note=order_type).order_by('name')
+        order_by = self.request.GET.get('order_by', 'start_time')
+        if order_by in ('client', 'registrant'):
+            qs = EventParticipant.objects.filter(event_id__in=initial_qs, note=order_by)
         else:
             qs = initial_qs.prefetch_related('participants__organization', 'agenda')
         return self.get_ordered_queryset(qs)
 
+    def get_ordered_queryset(self, queryset=None):
+        get_order_by = self.request.GET.get("order_by")
+
+        order_by = get_order_by if get_order_by in self.get_orderable_columns() else self.get_orderable_columns_default()
+
+        self.order_by = order_by
+        self.ordering = self.request.GET.get("ordering", self.order_by_default.get(self.order_by, "asc"))
+
+        order_by = self.order_mapping.get(order_by, order_by)
+        if order_by and self.ordering == "desc":
+            order_by = "-" + order_by
+
+        return queryset.order_by(order_by)
+
     def paginate_queryset(self, queryset, page_size):
         paginator, page, object_list, is_paginated = super(DisclosureListView, self).paginate_queryset(queryset, page_size)
 
-        order_type = self.request.GET.get('order_type', 'start_time')
-        if order_type in ('client', 'registrant'):
-            object_list = sorted(LobbyingRegistration.objects.filter(id__in=object_list.values('event_id')).prefetch_related('participants__organization', 'agenda'), key=lambda lr: getattr(lr, order_type + "s")[0].name)
+        if self.order_by in ('client', 'registrant'):
+            object_list = sorted(LobbyingRegistration.objects.filter(id__in=object_list.values('event_id')).prefetch_related('participants__organization', 'agenda'), key=lambda lr: getattr(lr, self.order_by + "s")[0].name)
 
         return (paginator, page, object_list, is_paginated)
 
@@ -151,7 +166,7 @@ class LobbyistView(ParticipantView):
 
 # the lobbyist list view is its own thing
 @djmicro.route(r'^lobbying/lobbyists$', name='lobbyist-list')
-class LobbyistListView(ListView, OrderableListMixin):
+class LobbyistListView(OrderableListMixin, ListView):
     paginate_by = 10
     template_name = 'templates/lobbyist_list.html'
     orderable_columns = ('name', 'num_registrations', 'most_recent')

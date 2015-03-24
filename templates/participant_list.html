@@ -1,12 +1,12 @@
 <!doctype html>
 <html>
 <body>
-{% for letter, orgs in orgs_by_alpha %}
+{% for letter, orgs in participants_by_alpha %}
     <h2>{{ letter }}</h2>
     {% for org in orgs %}
-        {% if org_type == 'client' %}
+        {% if participant_type == 'client' %}
             <a href="{% url 'client-detail' org.name|slugify org.short_uuid %}">
-        {% elif org_type == 'registrant' %}
+        {% elif participant_type == 'registrant' %}
             <a href="{% url 'registrant-detail' org.name|slugify org.short_uuid %}">
         {% endif %}
                 {{ org.name }}
