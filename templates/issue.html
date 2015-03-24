@@ -1,7 +1,6 @@
-<!doctype html>
-<html>
-<body>
-<h1>{{ object.description }}</h1>
+{% extends "templates/vashistha_base.html" %}
+
+{% block vashistha_main %}
+<h3>Issue: {{ object.description }}</h3>
 {% include "templates/registration_table.html" %}
-</body>
-</html>
+{% endblock %}

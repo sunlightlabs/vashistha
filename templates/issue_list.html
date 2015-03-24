@@ -1,8 +1,9 @@
-<!doctype html>
-<html>
-<body>
-{% for issue in object_list %}
-    <a href="{% url 'issue-detail' issue.slug %}">{{ issue.description }}</a><br />
-{% endfor %}
-</body>
-</html>
+{% extends "templates/vashistha_base.html" %}
+
+{% block vashistha_main %}
+<h3>Issues</h3>
+<div class="issue-list">
+    {% for issue in object_list %}
+        <a href="{% url 'issue-detail' issue.slug %}">{{ issue.description }}</a><br />
+    {% endfor %}
+{% endblock %}

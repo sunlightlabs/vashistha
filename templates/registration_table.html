@@ -28,10 +28,11 @@
             <td>
             {% for issue in obj.issues %}
                 <a href="{% url 'issue-detail' issue.slug %}">{{ issue.description }}</a>
+                {% if not forloop.last %}&bull;{% endif %}
             {% endfor %}
             </td>
             
-            <td><a href="{% url 'registration-detail' obj.short_uuid %}">View registration</a></td>
+            <td><a href="{% url 'registration-detail' obj.short_uuid %}">View&nbsp;&raquo;</a></td>
         </tr>
         {% endfor %}
     </tbody>

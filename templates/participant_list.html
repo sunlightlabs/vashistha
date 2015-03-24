@@ -1,8 +1,20 @@
-<!doctype html>
-<html>
-<body>
+{% extends "templates/vashistha_base.html" %}
+
+{% block vashistha_main %}
+<h3>{{ participant_type|capfirst }}s</h3>
+
+<div class="jump-to">
+    Jump to:
+    <span class="jump-links">
+        {% for letter, orgs in participants_by_alpha %}
+        <a href="#participant-header-{{ letter }}">{{ letter }}</a>
+        {% endfor %}
+    </span>
+</div>
 {% for letter, orgs in participants_by_alpha %}
-    <h2>{{ letter }}</h2>
+<div class="participant-list">
+    <h4><a name="participant-header-{{ letter }}"></a>{{ letter }}</h4>
+    <div class="participant-group">
     {% for org in orgs %}
         {% if participant_type == 'client' %}
             <a href="{% url 'client-detail' org.name|slugify org.short_uuid %}">
@@ -13,6 +25,8 @@
             </a>
         <br />
     {% endfor %}
+    </div>
+</div>
 {% endfor %}
-</body>
-</html>
+
+{% endblock %}

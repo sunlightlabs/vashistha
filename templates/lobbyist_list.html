@@ -1,21 +1,59 @@
-<!doctype html>
-<html>
-<body>
-{% for obj in object_list %}
-<a href="{% url 'lobbyist-detail' obj.name|slugify obj.short_uuid %}">{{ obj.name }}</a><br />
+{% extends "templates/vashistha_base.html" %}
 
-{{ obj.covered_positions|join:"<br />" }}
+{% block vashistha_main %}
+<h3>Lobbyists</h3>
 
-{% for registrant in obj.registrants %}
-<a href="{% url 'registrant-detail' registrant.name|slugify registrant.short_uuid %}">{{ registrant.name }}</a><br />
-{% endfor %}
+<table id="mainPageTable" class="server-sortable" data-ordering="{{ ordering }}" data-order-by="{{ order_by }}">
+    <thead>
+        <tr id="titles">
+            <th class="sort" data-label="name">Name</th>
+            <th>Covered position</th>
+            <th>Registrants</th>
+            <th class="sort" data-label="most_recent">Most recent registration</th>
+            <th class="sort" data-label="num_registrations">Registrations</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for obj in object_list %}
+        <tr class="{% cycle 'even' 'odd' %}">
+            <td><a href="{% url 'lobbyist-detail' obj.name|slugify obj.short_uuid %}">{{ obj.name }}</a></td>
 
-{% with obj.most_recent_registration as mr %}
-<a href="{% url 'registration-detail' mr.short_uuid %}">{{ mr.start_time }}</a><br />
-{% endwith %}
+            <td>{{ obj.covered_positions|join:"<br />" }}</td>
 
-{{ obj.num_registrations }}<br /><br />
+            <td>
+                {% for registrant in obj.registrants %}
+                <a href="{% url 'registrant-detail' registrant.name|slugify registrant.short_uuid %}">{{ registrant.name }}</a><br />
+                {% endfor %}
+            </td>
 
-{% endfor %}
-</body>
-</html>
+            <td class="date-field">
+                {% with obj.most_recent_registration as mr %}
+                <a href="{% url 'registration-detail' mr.short_uuid %}">{{ mr.start_time|date:"M. j, Y" }}</a>
+                {% endwith %}
+            </td>
+
+            <td>{{ obj.num_registrations }}</td>            
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="pagination">
+
+    {% if page_obj.number > 1 %}
+      <a href="?order_by={{ order_by }}&amp;ordering={{ ordering }}&amp;page={{ page_obj.number|add:-1 }}" class="prev">&laquo; previous</a>
+    {% else %}
+      <span class="prev"></span>
+    {% endif %}
+
+    <span class="pages">(page {{ page_obj.number }} of {{ paginator.num_pages }})</span>
+
+    {% if page_obj.number < paginator.num_pages %}
+      <a href="?order_by={{ order_by }}&amp;ordering={{ ordering }}&amp;page={{ page_obj.number|add:1 }}" class="next">next &raquo;</a>
+    {% else %}
+      <span class="next"></span>
+    {% endif %}
+
+</div>
+
+{% endblock %}

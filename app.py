@@ -3,7 +3,7 @@ try:
 except:
     local_settings = None
 
-import djmicro, os
+import djmicro, os, re
 djmicro.configure({
     'INSTALLED_APPS': ('opencivicdata', 'django.contrib.staticfiles', 'dryrub'),
     'STATIC_URL': '/static/',
@@ -110,7 +110,8 @@ class ParticipantListView(ListView):
 
     def get_context_data(self, *args, **kwargs):
         context_data = super(ParticipantListView, self).get_context_data(*args, **kwargs)
-        context_data['participants_by_alpha'] = [(letter, list(group)) for letter, group in itertools.groupby(self.model.objects.all().order_by('name'), key=lambda org: org.name[0].upper())]
+        nonletters = re.compile('[^A-Z0-9]')
+        context_data['participants_by_alpha'] = [(letter, list(group)) for letter, group in itertools.groupby(self.model.objects.all().order_by('name'), key=lambda org: nonletters.sub('', org.name.upper())[0])]
         context_data['participant_type'] = self.participant_type
         return context_data
 

@@ -42,3 +42,24 @@
 .date-field {
     min-width: 90px;
 }
+
+.issue-list, .participant-group {
+    column-count: 3;
+    -moz-column-count: 3;
+    -webkit-column-count: 3;
+}
+
+.participant-list h4 {
+    border-bottom: 1px dashed #dcdcd8;
+}
+
+.participant-group {
+    margin-bottom: 20px;
+}
+
+.jump-to {
+    background: rgba(105,165,159,.17);
+    padding: 8px;
+    border: 1px solid #dcdcd8;
+    margin-bottom: 20px;
+}
