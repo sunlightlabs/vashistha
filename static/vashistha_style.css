@@ -71,3 +71,10 @@
     width: auto !important;
     text-align: left !important;
 }
+
+.included-reg-table h4 {
+    margin-top: 20px;
+}
+.included-reg-table table {
+    margin-top: 12px !important;
+}
