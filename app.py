@@ -11,36 +11,18 @@ djmicro.configure({
 }, local_settings=local_settings)
 
 from django.views.generic import TemplateView, ListView, RedirectView
+from django.core.urlresolvers import reverse
 from django.http import Http404
+from django.template import Context, loader
 from braces.views import OrderableListMixin
-from models import *
 from django.db.models import Count, Max
+
+from models import *
+from mixins import *
 
 @djmicro.route(r'^$')
 class Index(RedirectView):
     url = '/lobbying/registrations'
-
-
-## Common parts
-
-class EnhancedOrderableListView(OrderableListMixin, ListView):
-    order_by_default = {}
-    order_mapping = {}
-
-    def get_ordered_queryset(self, queryset=None):
-        get_order_by = self.request.GET.get("order_by")
-
-        order_by = get_order_by if get_order_by in self.get_orderable_columns() else self.get_orderable_columns_default()
-
-        self.order_by = order_by
-        self.ordering = self.request.GET.get("ordering", self.order_by_default.get(self.order_by, "asc"))
-
-        order_by = self.order_mapping.get(order_by, order_by)
-        if order_by and self.ordering == "desc":
-            order_by = "-" + order_by
-
-        return queryset.order_by(order_by)
-
 
 ## Disclosures
 
@@ -73,6 +55,20 @@ class DisclosureListView(EnhancedOrderableListView):
             object_list = sorted(LobbyingRegistration.objects.filter(id__in=object_list.values('event_id')).prefetch_related('participants__organization', 'agenda'), key=lambda lr: getattr(lr, self.order_by + "s")[0].name)
 
         return (paginator, page, object_list, is_paginated)
+
+    @classmethod
+    def as_rss(cls):
+        class RssFeed(DisclosureRssMixin, cls):
+            pass
+        return RssFeed
+
+    @classmethod
+    def as_csv(cls):
+        class CsvDump(DisclosureCsvMixin, cls):
+            pass
+        return CsvDump
+
+djmicro.route(r'^lobbying/registrations.rss$', name='registration-list-feed')(DisclosureListView.as_rss())
 
 @djmicro.route(r'^lobbying/registrations/(?P<short_uuid>\w+)$', name='registration-detail')
 class DisclosureView(TemplateView):
@@ -115,6 +111,9 @@ class IssueView(DisclosureListView):
         context_data = super(IssueView, self).get_context_data(*args, **kwargs)
         context_data['object'] = issues_by_slug[self.kwargs['slug']]
         return context_data
+
+djmicro.route(r'^lobbying/issues/(?P<slug>[\w-]+).rss$', name='issue-detail-feed')(IssueView.as_rss())
+djmicro.route(r'^lobbying/issues/(?P<slug>[\w-]+).csv$', name='issue-detail-csv')(IssueView.as_csv())
 
 
 ## Participants (clients/registrants/lobbyists)
@@ -173,11 +172,17 @@ class RegistrantView(ParticipantView):
     participant_type = 'registrant'
     section = 'registrants'
 
+djmicro.route(r'^lobbying/registrants/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+).rss$', name='registrant-detail-feed')(RegistrantView.as_rss())
+djmicro.route(r'^lobbying/registrants/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+).csv$', name='registrant-detail-csv')(RegistrantView.as_csv())
+
 @djmicro.route(r'^lobbying/clients/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+)$', name='client-detail')
 class ClientView(ParticipantView):
     model = Client
     participant_type = 'client'
     section = 'clients'
+
+djmicro.route(r'^lobbying/clients/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+).rss$', name='client-detail-feed')(ClientView.as_rss())
+djmicro.route(r'^lobbying/clients/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+).csv$', name='client-detail-csv')(ClientView.as_csv())
 
 @djmicro.route(r'^lobbying/lobbyists/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+)$', name='lobbyist-detail')
 class LobbyistView(ParticipantView):
@@ -185,6 +190,9 @@ class LobbyistView(ParticipantView):
     participant_type = 'lobbyist'
     section = 'lobbyists'
     template_name = 'templates/lobbyist.html'
+
+djmicro.route(r'^lobbying/lobbyists/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+).rss$', name='lobbyist-detail-feed')(LobbyistView.as_rss())
+djmicro.route(r'^lobbying/lobbyists/(?P<slug>[\w-]+)/(?P<short_uuid>[\w-]+).csv$', name='lobbyist-detail-csv')(LobbyistView.as_csv())
 
 # the lobbyist list view is its own thing
 @djmicro.route(r'^lobbying/lobbyists$', name='lobbyist-list')

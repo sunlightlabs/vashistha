@@ -1,0 +1,5 @@
+{% with object.registrants as registrants %}{% if registrants %}{{ registrants.0.name }}{% else %}A registrant{% endif %}{% endwith %}
+registered on {{ object.start_time|date:"F j, Y" }} to lobby for
+{% with object.clients as clients %}{% if clients %}{{ clients.0.name }}{% else %}a client{% endif %}{% endwith %}.
+The issues listed are {% for issue in object.issues %}{{ issue.description }}{% if not forloop.last %}, {% endif %}{% endfor %}.
+The specific issue listed is "{{ object.specific_issues|join:"; " }}"

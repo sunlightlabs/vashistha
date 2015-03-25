@@ -35,15 +35,15 @@ class LobbyingRegistration(Event, ShortUUIDMixin):
 
     @property
     def clients(self):
-        return [swap_type(participant.organization, Client) for participant in self.participants.all() if participant.note == "client"]
+        return [swap_type(participant.organization, Client) for participant in self.participants.all() if participant.note == "client" and participant.organization_id]
 
     @property
     def registrants(self):
-        return [swap_type(participant.organization, Registrant) for participant in self.participants.all() if participant.note == "registrant"]
+        return [swap_type(participant.organization, Registrant) for participant in self.participants.all() if participant.note == "registrant" and participant.organization_id]
 
     @property
     def lobbyists(self):
-        return [swap_type(participant.person, Lobbyist) for participant in self.participants.all() if participant.note == "lobbyist"]
+        return [swap_type(participant.person, Lobbyist) for participant in self.participants.all() if participant.note == "lobbyist" and participant.person_id]
 
     @property
     def issues(self):
@@ -120,8 +120,8 @@ class Client(Organization, ShortUUIDMixin):
     objects = ClientManager()
 
 
-## Issues -- not really models, but same idea
-from sopr_lobbying_reference import GENERAL_ISSUE_CODES
+## Issues and registration types -- not really models, but same idea
+from sopr_lobbying_reference import GENERAL_ISSUE_CODES, FILING_TYPES
 from django.utils.text import slugify
 
 issues_by_code = {}
@@ -131,3 +131,8 @@ for issue in GENERAL_ISSUE_CODES:
     issue['slug'] = slugify(unicode(issue['description']))
     issues_by_code[issue['issue_code']] = issue
     issues_by_slug[issue['slug']] = issue
+
+filing_types_by_code = {}
+
+for filing_type in FILING_TYPES:
+    filing_types_by_code[filing_type['code']] = filing_type
