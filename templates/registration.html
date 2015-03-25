@@ -39,6 +39,11 @@
     {% endfor %}
     </dd>
 
+    <dt>Specific issue:</dt>
+    <dd>
+        {{ object.specific_issues|join:"; " }}
+    </dd>
+
     {% with object.sources.all as sources %}
     {% if sources|length %}
     <dt>Original filings:</dt>

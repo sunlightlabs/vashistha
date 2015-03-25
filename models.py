@@ -49,6 +49,10 @@ class LobbyingRegistration(Event, ShortUUIDMixin):
     def issues(self):
         return list(itertools.chain.from_iterable(([issues_by_code[subject] for subject in item.subjects] for item in self.agenda.all())))
 
+    @property
+    def specific_issues(self):
+        return list(itertools.chain.from_iterable((item.notes for item in self.agenda.all())))
+
 
 ## Lobbyist
 
