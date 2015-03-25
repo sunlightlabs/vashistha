@@ -74,7 +74,24 @@
 
 .included-reg-table h4 {
     margin-top: 20px;
+    float: left;
 }
 .included-reg-table table {
-    margin-top: 12px !important;
+    margin-top: 0 !important;
+}
+.main-reg-table h3 {
+    float: left;
+    margin-bottom: 0;
+}
+.included-reg-table .export-links {
+    float: right;
+    margin-top: 20px;
+}
+.main-reg-table .export-links {
+    float: right;
+}
+.export-links a.rss-download, .export-links a.csv-download {
+    padding-left: 30px;
+    background-repeat: no-repeat;
+    background-position: 10px 0;
 }

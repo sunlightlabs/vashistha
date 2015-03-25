@@ -1,15 +1,10 @@
-{% extends "templates/vashistha_base.html" %}
 {% load staticfiles %}
-
-{% block pagetitle %}Registrations | {{ block.super }}{% endblock %}
-
-{% block vashistha_main %}
-<div class="main-reg-table">
-    <h3>Registrations</h3>
+<div class="included-reg-table">
+    <h4>Registrations</h4>
     <div class="export-links">
         <a class="rss-download" href="{{ view.rss_path }}" style="background-image: url('{% static 'feed-icon-14x14.png' %}')">Subscribe</a>
+        <a class="csv-download" href="{{ view.csv_path }}" style="background-image: url('{% static 'icon_csv.gif' %}')">Download</a>
     </div>
     <div class="clear"></div>
     {% include "templates/registration_table.html" %}
 </div>
-{% endblock %}

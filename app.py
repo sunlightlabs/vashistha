@@ -56,17 +56,27 @@ class DisclosureListView(EnhancedOrderableListView):
 
         return (paginator, page, object_list, is_paginated)
 
+    # rss
     @classmethod
     def as_rss(cls):
         class RssFeed(DisclosureRssMixin, cls):
             pass
         return RssFeed
 
+    @property
+    def rss_path(self):
+        return reverse(self.request.resolver_match.url_name + "-feed", kwargs=self.kwargs)
+
+    # csv
     @classmethod
     def as_csv(cls):
         class CsvDump(DisclosureCsvMixin, cls):
             pass
         return CsvDump
+
+    @property
+    def csv_path(self):
+        return reverse(self.request.resolver_match.url_name + "-csv", kwargs=self.kwargs)
 
 djmicro.route(r'^lobbying/registrations.rss$', name='registration-list-feed')(DisclosureListView.as_rss())
 

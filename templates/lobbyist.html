@@ -27,8 +27,5 @@
     {% endif %}
     {% endwith %}
 </dl>
-<div class="included-reg-table">
-    <h4>Registrations</h4>
-    {% include "templates/registration_table.html" %}
-</div>
+{% include "templates/registration_table_embedded.html" %}
 {% endblock %}
