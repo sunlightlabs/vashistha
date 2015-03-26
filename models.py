@@ -136,3 +136,11 @@ filing_types_by_code = {}
 
 for filing_type in FILING_TYPES:
     filing_types_by_code[filing_type['code']] = filing_type
+
+# except actually, for issues we have to fake a model for search
+class SearchIssue(models.Model):
+    class Meta:
+        app_label = "vashistha"
+
+    id = models.CharField(max_length=8, primary_key=True)
+    description = models.TextField()

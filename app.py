@@ -4,11 +4,11 @@ except:
     local_settings = None
 
 import djmicro, os, re
-djmicro.configure({
+djmicro.configure([{
     'INSTALLED_APPS': ('opencivicdata', 'django.contrib.staticfiles', 'django.contrib.humanize', 'dryrub'),
     'STATIC_URL': '/static/',
     'STATICFILES_DIRS': (os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static'),)
-}, local_settings=local_settings)
+}, local_settings], app_name="vashistha")
 
 from django.views.generic import TemplateView, ListView, RedirectView
 from django.core.urlresolvers import reverse
@@ -221,6 +221,11 @@ class LobbyistListView(EnhancedOrderableListView):
             most_recent=Max('eventparticipant__event__start_time')
         ).prefetch_related('eventparticipant_set', 'eventparticipant_set__event', 'eventparticipant_set__event__participants', 'eventparticipant_set__event__participants__organization')
         return self.get_ordered_queryset(qs)
+
+# make a couple of other modules visible to Django
+import models, migrations
+djmicro.add_module_to_app(models)
+djmicro.add_module_to_app(migrations)
 
 # run the site
 if __name__ == '__main__':
