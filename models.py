@@ -53,6 +53,16 @@ class LobbyingRegistration(Event, ShortUUIDMixin):
     def specific_issues(self):
         return list(itertools.chain.from_iterable((item.notes for item in self.agenda.all())))
 
+    @property
+    def search_document(self):
+        return u"\n".join([
+            u"\n".join([registrant.name for registrant in self.registrants]),
+            u"\n".join([client.name for client in self.clients]),
+            u"\n".join([lobbyist.name for lobbyist in self.lobbyists]),
+            u"\n".join([issue['description'].replace("\n", " ") for issue in self.issues]),
+            u"\n".join([specific_issue for specific_issue in self.specific_issues]),
+        ]).strip()
+
 
 ## Lobbyist
 
@@ -88,6 +98,13 @@ class Lobbyist(Person, ShortUUIDMixin):
     def slug(self):
         slug = slugify(self.name)
         return slug if slug else "-"
+
+    @property
+    def search_document(self):
+        return u"\n".join([
+            self.name,
+            u"\n".join(self.covered_positions)
+        ]).strip()
 
     objects = LobbyistManager()
 

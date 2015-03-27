@@ -5,7 +5,7 @@ except:
 
 import djmicro, os, re
 djmicro.configure([{
-    'INSTALLED_APPS': ('opencivicdata', 'django.contrib.staticfiles', 'django.contrib.humanize', 'dryrub'),
+    'INSTALLED_APPS': ('opencivicdata', 'django.contrib.staticfiles', 'django.contrib.humanize', 'dryrub', 'haystack'),
     'STATIC_URL': '/static/',
     'STATICFILES_DIRS': (os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static'),)
 }, local_settings], app_name="vashistha")
@@ -223,9 +223,10 @@ class LobbyistListView(EnhancedOrderableListView):
         return self.get_ordered_queryset(qs)
 
 # make a couple of other modules visible to Django
-import models, migrations
+import models, migrations, search_indexes
 djmicro.add_module_to_app(models)
 djmicro.add_module_to_app(migrations)
+djmicro.add_module_to_app(search_indexes)
 
 # run the site
 if __name__ == '__main__':

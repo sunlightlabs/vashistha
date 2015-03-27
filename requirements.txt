@@ -12,3 +12,5 @@ django-uuidfield
 psycopg2
 django-braces
 shortuuid
+django-haystack
+Whoosh
