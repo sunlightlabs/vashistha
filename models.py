@@ -68,7 +68,7 @@ class LobbyingRegistration(Event, ShortUUIDMixin):
 
 class LobbyistManager(models.Manager):
     def get_queryset(self):
-        return super(LobbyistManager, self).get_queryset().filter(eventparticipant__note="lobbyist")
+        return super(LobbyistManager, self).get_queryset().filter(eventparticipant__note="lobbyist").distinct()
 
 class Lobbyist(Person, ShortUUIDMixin):
     class Meta:
@@ -113,7 +113,7 @@ class Lobbyist(Person, ShortUUIDMixin):
 
 class RegistrantManager(models.Manager):
     def get_queryset(self):
-        return super(RegistrantManager, self).get_queryset().filter(eventparticipant__note="registrant")
+        return super(RegistrantManager, self).get_queryset().filter(eventparticipant__note="registrant").distinct()
 
 class Registrant(Organization, ShortUUIDMixin):
     class Meta:
@@ -127,7 +127,7 @@ class Registrant(Organization, ShortUUIDMixin):
 
 class ClientManager(models.Manager):
     def get_queryset(self):
-        return super(ClientManager, self).get_queryset().filter(eventparticipant__note="client")
+        return super(ClientManager, self).get_queryset().filter(eventparticipant__note="client").distinct()
 
 class Client(Organization, ShortUUIDMixin):
     class Meta:
