@@ -15,7 +15,7 @@ from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.template import Context, loader
 from braces.views import OrderableListMixin
-from django.db.models import Count, Max
+from django.db.models import Count, Max, Min
 
 from models import *
 from mixins import *
@@ -221,6 +221,50 @@ class LobbyistListView(EnhancedOrderableListView):
             most_recent=Max('eventparticipant__event__start_time')
         ).prefetch_related('eventparticipant_set', 'eventparticipant_set__event', 'eventparticipant_set__event__participants', 'eventparticipant_set__event__participants__organization')
         return self.get_ordered_queryset(qs)
+
+# search
+from haystack.query import SearchQuerySet
+@djmicro.route(r'^lobbying/search$', name='search')
+class SearchView(ListView):
+    paginate_by = 10
+    template_name = 'templates/search_results.html'
+    section = None
+
+    def get_queryset(self):
+        return SearchQuerySet().filter(content=self.request.GET['q'])
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(SearchView, self).get_context_data(*args, **kwargs)
+        
+        # make a new object list we can hang extra stuff off of
+        object_list = [{
+            'text': obj.text,
+            'model_name': obj.model_name if obj.model_name != "searchissue" else "issue",
+            'pk': obj.pk,
+            'is_participant': obj.model_name in ('client', 'registrant', 'lobbyist'),
+        } for obj in context['object_list']]
+
+        result_stats = {}
+
+        # get stats about registrations for clients, registrants, and lobbyists
+        participants = [result for result in object_list if result['is_participant']]
+        if participants:
+            participant_stats_list = EventParticipant.objects\
+                .filter(event__classification="registration", event__disclosurerelatedentity__disclosure__classification="lobbying", organization_id__in=[participant['pk'] for participant in participants])\
+                .values('person_id', 'organization_id', 'note')\
+                .annotate(num_registrations=Count('event_id'), first_registration=Min('event__start_time'), last_registration=Max('event__start_time'))
+            result_stats.update({(participant['note'], participant['person_id'] if participant['note'] == 'lobbyist' else participant['organization_id']) : participant for participant in participant_stats_list})
+
+        # same with issues
+        
+        # combine everything
+        for result in object_list:
+            result['stats'] = result_stats.get((result['model_name'], result['pk']), {})
+
+        context['object_list'] = object_list
+        return context
+
+
 
 # make a couple of other modules visible to Django
 import models, migrations, search_indexes

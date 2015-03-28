@@ -14,6 +14,11 @@ class IssueIndex(indexes.SearchIndex, indexes.Indexable):
             search_issue.save()
         return SearchIssue.objects.all()
 
+    def prepare(self, obj):
+        data = super(IssueIndex, self).prepare(obj)
+        data['boost'] = 1.5
+        return data
+
 class RegistrantIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, model_attr='name')
 
@@ -40,3 +45,8 @@ class LobbyingRegistrationIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         return LobbyingRegistration.objects.all().prefetch_related('participants__organization', 'participants__person', 'agenda')
+
+    def prepare(self, obj):
+        data = super(LobbyingRegistrationIndex, self).prepare(obj)
+        data['boost'] = 0.8
+        return data

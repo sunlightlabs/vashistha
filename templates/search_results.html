@@ -1,0 +1,16 @@
+{% extends "templates/vashistha_base.html" %}
+{% load staticfiles %}
+
+{% block pagetitle %}Registrations | {{ block.super }}{% endblock %}
+
+{% block vashistha_main %}
+<h3>Registrations</h3>
+{% for object in object_list %}
+{{ object.text }}<br />
+type: {{ object.model_name }}<br />
+{% if object.is_participant %}
+appears as a {{ object.model_name }} on {{ object.stats.num_registrations }} registrations from {{ object.stats.first_registration|date:"M d, Y" }} to {{ object.stats.last_registration|date:"M d, Y" }}.<br />
+{% endif %}
+<br />
+{% endfor %}
+{% endblock %}
