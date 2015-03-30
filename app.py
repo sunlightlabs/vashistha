@@ -1,8 +1,12 @@
-import global_settings
-try:
-    import local_settings
-except:
-    local_settings = None
+import global_settings, os
+if 'DYNO' in os.environ:
+    # we're on heroku
+    import heroku_settings as local_settings
+else:
+    try:
+        import local_settings
+    except:
+        local_settings = None
 
 import djmicro, os, re
 djmicro.configure([global_settings, local_settings], app_name="vashistha")

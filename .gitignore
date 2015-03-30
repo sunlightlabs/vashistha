@@ -1,3 +1,6 @@
 local_settings.py
 *.pyc
 whoosh_index
+.env
+heroku_static
+*.rdb

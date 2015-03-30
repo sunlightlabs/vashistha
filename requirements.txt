@@ -14,3 +14,10 @@ django-braces
 shortuuid
 django-haystack
 Whoosh
+
+gunicorn
+dj-static
+
+redis
+-e git+https://github.com/jokull/haystack-redis.git@master#egg=haystack-redis
+dj-database-url
