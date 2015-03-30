@@ -13,8 +13,19 @@
 {% block main %}
 
 <div id="contentHeader" class="clearfix">
+    <div class="header-padding"></div>
+    <div class="header-search">
+        <form id="searchForeign" action="{% url 'search' %}" method="get">
+            <input name="q" placeholder="search" maxlength="200" type="text" id="id_query" {% if query %}value="{{ query }}"{% endif %}>
+            <button class="searchBtn_sm" type="submit">
+            <span>Go</span>
+            </button>
+        </form>
+        
+        <div class="clear"></div>
+        <span class="tip">Search for a country, person or keyword</span>
+    </div>
     <h2 class="RTh2">Real-Time Lobbying Registrations</h2>
-    </h2>
 </div>
 
 {% block vashistha_nav %}

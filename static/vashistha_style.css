@@ -107,3 +107,20 @@ a.result-name { font-size: 145%; display: block; }
 .results-drilldown { display: block; margin-top: 5px; font-size: 110%; text-align: right; font-family: Georgia, Times New Roman, Times, serif; font-style: oblique; }
 .result-sections { margin-top: 5px; padding-top: 5px; padding-right: 80px; font-family: Georgia, Times New Roman, Times, serif; font-style: oblique; border-top: 1px dotted #cccccc; }
 .result-bio { width: 565px; margin-top: 1em; font-family: Georgia, Times New Roman, Times, serif; font-style: oblique; }
+
+/* shrink the search box a bit because the title is huge */
+input#id_query {
+  background-position: top right;
+  width: 230px;
+}
+
+.header-padding {
+    clear: both;
+    margin-top: 10px;
+}
+.header-search {
+    float: right;
+}
+.header-search .tip {
+    margin-bottom: 10px;
+}
