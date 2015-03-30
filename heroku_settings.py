@@ -3,9 +3,9 @@ ALLOWED_HOSTS = ['*']
 
 import os, dj_database_url
 
-if 'GEOS_LIBRARY_PATH' in os.environ:
-    GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
-    GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
+#if 'GEOS_LIBRARY_PATH' in os.environ:
+#    GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
+#    GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
 
 HAYSTACK_CONNECTIONS = {
     'default': {
