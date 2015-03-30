@@ -1,26 +1,57 @@
 {% extends "templates/vashistha_base.html" %}
 {% load staticfiles %}
+{% load humanize %}
 
 {% block pagetitle %}Registrations | {{ block.super }}{% endblock %}
 
 {% block vashistha_main %}
-<h3>Results</h3>
-{% for object in object_list %}
-<a href="{{ object.url }}">{{ object.text }}</a><br />
-type: {{ object.model_name }}<br />
-{% if object.is_participant or object.model_name == 'issue' %}
-    Appears as a {{ object.model_name }} on {{ object.stats.num_registrations }} registration{{ object.stats.num_registrations|pluralize }}
-    {% if object.stats.first_registration ==  object.stats.last_registration %}
-        on {{ object.stats.first_registration|date:"F j, Y" }}.
+
+{% if object_list|length_is:"0" %}
+<h3>No esults for &#8220;{{ query }}&#8221;</h3>
+{% else %}
+
+<h3>Results for &#8220;{{ query }}&#8221;</h3>
+<div class="search-results">
+    <div class="result-rows">
+    {% for object in object_list %}
+        <div class="result-row {% cycle 'even' 'odd' %}">
+            <a class='result-name' href="{{ object.url }}">{{ object.text }}</a>
+            <span class="result-type"><strong>{{ object.nice_name|capfirst }}</strong></span>
+            <div class="result-bio">
+            {% if object.is_participant or object.model_name == 'issue' %}
+                Appears as a{% if object.model_name == 'issue' %}n{% endif %} {{ object.model_name }} on {{ object.stats.num_registrations }} registration{{ object.stats.num_registrations|pluralize }}
+                {% if object.stats.first_registration ==  object.stats.last_registration %}
+                    on {{ object.stats.first_registration|date:"F j, Y" }}.
+                {% else %}
+                    from {{ object.stats.first_registration|date:"F j, Y" }} to {{ object.stats.last_registration|date:"F j, Y" }}.
+                {% endif %}
+            {% elif object.model_name == 'registration' %}
+                Filed on {{ object.stats.start_time|date:"F j, Y" }} about
+                {% for item in object.stats.issues %}{% if forloop.first %}{% else %}{% if forloop.last %} and {% else %}, {% endif %}{% endif %}{{ item.description }}{% endfor %}
+            {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+
+<div class="pagination">
+
+    {% if page_obj.number > 1 %}
+      <a href="?page={{ page_obj.number|add:-1 }}&amp;q={{ query|urlencode }}" class="prev">&laquo; previous</a>
     {% else %}
-        from {{ object.stats.first_registration|date:"F j, Y" }} to {{ object.stats.last_registration|date:"F j, Y" }}.
+      <span class="prev"></span>
     {% endif %}
-    <br />
-{% elif object.model_name == 'registration' %}
-    Filed on {{ object.stats.start_time|date:"F j, Y" }} about
-    {% for item in object.stats.issues %}{% if forloop.first %}{% else %}{% if forloop.last %} and {% else %}, {% endif %}{% endif %}{{ item.description }}{% endfor %}
-    <br />
+
+    <span class="pages">(page {{ page_obj.number }} of {{ paginator.num_pages|intcomma }})</span>
+
+    {% if page_obj.number < paginator.num_pages %}
+      <a href="?page={{ page_obj.number|add:1 }}&amp;q={{ query|urlencode }}" class="next">next &raquo;</a>
+    {% else %}
+      <span class="next"></span>
+    {% endif %}
+
+</div>
+
 {% endif %}
-<br />
-{% endfor %}
 {% endblock %}

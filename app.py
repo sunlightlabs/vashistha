@@ -232,7 +232,7 @@ class SearchView(ListView):
     section = None
 
     def get_queryset(self):
-        return SearchQuerySet().filter(content=self.request.GET['q'])
+        return SearchQuerySet().filter(content=self.request.GET.get('q', ''))
 
     def get_context_data(self, *args, **kwargs):
         context = super(SearchView, self).get_context_data(*args, **kwargs)
@@ -287,6 +287,9 @@ class SearchView(ListView):
             # hang URLs and other necessary metadata
             result['nice_name'] = result['model_name']
             if result['is_participant']:
+                if result['model_name'] == 'lobbyist':
+                    # only use up until the first carriage return, because the rest might be covered positions
+                    result['text'] = result['text'].split('\n')[0]
                 slug = slugify(result['text'])
                 short_pk = shortuuid.encode(uuid.UUID(result['pk'].split("/")[-1]))
                 result['url'] = reverse(result['model_name'] + '-detail', args=[slug if slug else '-', short_pk])
@@ -295,9 +298,11 @@ class SearchView(ListView):
             elif result['model_name'] == 'registration':
                 result['url'] = reverse('registration-detail', args=(result['stats'].short_uuid,))
                 result['nice_name'] = 'lobbying registration'
-                result['text'] = "%s for %s" % (result['stats'].registrants[0].name, result['stats'].clients[0].name)
+                registrants = result['stats'].registrants
+                clients = result['stats'].clients
+                result['text'] = "%s for %s" % (registrants[0].name if registrants else "A registrant", clients[0].name if clients else "a client")
 
-
+        context['query'] = self.request.GET.get('q', '')
         context['object_list'] = object_list
         return context
 
