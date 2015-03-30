@@ -1,14 +1,11 @@
+import global_settings
 try:
     import local_settings
 except:
     local_settings = None
 
 import djmicro, os, re
-djmicro.configure([{
-    'INSTALLED_APPS': ('opencivicdata', 'django.contrib.staticfiles', 'django.contrib.humanize', 'dryrub', 'haystack'),
-    'STATIC_URL': '/static/',
-    'STATICFILES_DIRS': (os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static'),)
-}, local_settings], app_name="vashistha")
+djmicro.configure([global_settings, local_settings], app_name="vashistha")
 
 from django.views.generic import TemplateView, ListView, RedirectView
 from django.core.urlresolvers import reverse
