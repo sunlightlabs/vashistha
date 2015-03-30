@@ -42,6 +42,9 @@
 .date-field {
     min-width: 90px;
 }
+.lobbyist-name {
+    min-width: 120px;
+}
 
 .issue-list, .participant-group {
     column-count: 3;
