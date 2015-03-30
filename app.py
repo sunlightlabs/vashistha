@@ -15,7 +15,8 @@ from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.template import Context, loader
 from braces.views import OrderableListMixin
-from django.db.models import Count, Max, Min
+from django.db.models import Count, Max, Min, Q
+from django.utils.text import slugify
 
 from models import *
 from mixins import *
@@ -237,9 +238,10 @@ class SearchView(ListView):
         context = super(SearchView, self).get_context_data(*args, **kwargs)
         
         # make a new object list we can hang extra stuff off of
+        model_overrides = {'searchissue': 'issue', 'lobbyingregistration': 'registration'}
         object_list = [{
-            'text': obj.text,
-            'model_name': obj.model_name if obj.model_name != "searchissue" else "issue",
+            'text': obj.text if obj.model_name != "searchissue" else issues_by_code[obj.pk]['description'],
+            'model_name': model_overrides.get(obj.model_name, obj.model_name),
             'pk': obj.pk,
             'is_participant': obj.model_name in ('client', 'registrant', 'lobbyist'),
         } for obj in context['object_list']]
@@ -250,16 +252,51 @@ class SearchView(ListView):
         participants = [result for result in object_list if result['is_participant']]
         if participants:
             participant_stats_list = EventParticipant.objects\
-                .filter(event__classification="registration", event__disclosurerelatedentity__disclosure__classification="lobbying", organization_id__in=[participant['pk'] for participant in participants])\
+                .filter(
+                    Q(organization_id__in=[participant['pk'] for participant in participants if participant['model_name'] in ('registrant', 'client')]) |\
+                    Q(person_id__in=[participant['pk'] for participant in participants if participant['model_name'] == 'lobbyist']),
+                    event__classification="registration", event__disclosurerelatedentity__disclosure__classification="lobbying",\
+                )\
                 .values('person_id', 'organization_id', 'note')\
                 .annotate(num_registrations=Count('event_id'), first_registration=Min('event__start_time'), last_registration=Max('event__start_time'))
             result_stats.update({(participant['note'], participant['person_id'] if participant['note'] == 'lobbyist' else participant['organization_id']) : participant for participant in participant_stats_list})
+        print result_stats
 
         # same with issues
-        
+        # there's some crazy hackery here because unrolling Postgres arrays and aggregating their contents turns out to be a huge pain
+        issues = [result for result in object_list if result['model_name'] == "issue"]
+        if issues:
+            issue_ids = [result['pk'] for result in issues]
+            issue_stats_list = LobbyingRegistration.objects\
+                .filter(agenda__subjects__overlap=issue_ids)\
+                .extra(select={'issue': 'unnest(%s.subjects)' % EventAgendaItem._meta.db_table}, tables=(EventAgendaItem._meta.db_table,))\
+                .values("issue")\
+                .annotate(num_registrations=Count('agenda'), first_registration=Min('start_time'), last_registration=Max('start_time'))
+            result_stats.update({('issue', issue['issue']) : issue for issue in issue_stats_list if issue['issue'] in issue_ids})
+
+        # grab the full records for any matched registrations
+        registrations = [result for result in object_list if result['model_name'] == 'registration']
+        if registrations:
+            registration_records = LobbyingRegistration.objects.filter(id__in=[r['pk'] for r in registrations]).prefetch_related('participants__organization', 'agenda')
+            result_stats.update({('registration', r.id): r for r in registration_records})
+
         # combine everything
         for result in object_list:
             result['stats'] = result_stats.get((result['model_name'], result['pk']), {})
+
+            # hang URLs and other necessary metadata
+            result['nice_name'] = result['model_name']
+            if result['is_participant']:
+                slug = slugify(result['text'])
+                short_pk = shortuuid.encode(uuid.UUID(result['pk'].split("/")[-1]))
+                result['url'] = reverse(result['model_name'] + '-detail', args=[slug if slug else '-', short_pk])
+            elif result['model_name'] == 'issue':
+                result['url'] = reverse('issue-detail', args=(issues_by_code[result['pk']]['slug'],))
+            elif result['model_name'] == 'registration':
+                result['url'] = reverse('registration-detail', args=(result['stats'].short_uuid,))
+                result['nice_name'] = 'lobbying registration'
+                result['text'] = "%s for %s" % (result['stats'].registrants[0].name, result['stats'].clients[0].name)
+
 
         context['object_list'] = object_list
         return context

@@ -17,7 +17,7 @@ class ShortUUIDMixin(object):
 
     @classmethod
     def filter_by_short_uuid(cls, short_uuid):
-        return cls.objects.filter(id='ocd-%s/%s' % (cls._meta.get_field_by_name('id')[0].ocd_type, str(shortuuid.decode(short_uuid))))
+        return cls.objects.filter(id='ocd-%s/%s' % (cls._meta.get_field_by_name('id')[0].ocd_type, str(shortuuid.decode(short_uuid)))).distinct()
 
 
 ## Lobbying registration
@@ -68,7 +68,7 @@ class LobbyingRegistration(Event, ShortUUIDMixin):
 
 class LobbyistManager(models.Manager):
     def get_queryset(self):
-        return super(LobbyistManager, self).get_queryset().filter(eventparticipant__note="lobbyist").distinct()
+        return super(LobbyistManager, self).get_queryset().filter(eventparticipant__note="lobbyist")
 
 class Lobbyist(Person, ShortUUIDMixin):
     class Meta:
@@ -113,7 +113,7 @@ class Lobbyist(Person, ShortUUIDMixin):
 
 class RegistrantManager(models.Manager):
     def get_queryset(self):
-        return super(RegistrantManager, self).get_queryset().filter(eventparticipant__note="registrant").distinct()
+        return super(RegistrantManager, self).get_queryset().filter(eventparticipant__note="registrant")
 
 class Registrant(Organization, ShortUUIDMixin):
     class Meta:
@@ -127,7 +127,7 @@ class Registrant(Organization, ShortUUIDMixin):
 
 class ClientManager(models.Manager):
     def get_queryset(self):
-        return super(ClientManager, self).get_queryset().filter(eventparticipant__note="client").distinct()
+        return super(ClientManager, self).get_queryset().filter(eventparticipant__note="client")
 
 class Client(Organization, ShortUUIDMixin):
     class Meta:

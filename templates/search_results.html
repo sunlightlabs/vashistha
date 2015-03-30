@@ -4,12 +4,22 @@
 {% block pagetitle %}Registrations | {{ block.super }}{% endblock %}
 
 {% block vashistha_main %}
-<h3>Registrations</h3>
+<h3>Results</h3>
 {% for object in object_list %}
-{{ object.text }}<br />
+<a href="{{ object.url }}">{{ object.text }}</a><br />
 type: {{ object.model_name }}<br />
-{% if object.is_participant %}
-appears as a {{ object.model_name }} on {{ object.stats.num_registrations }} registrations from {{ object.stats.first_registration|date:"M d, Y" }} to {{ object.stats.last_registration|date:"M d, Y" }}.<br />
+{% if object.is_participant or object.model_name == 'issue' %}
+    Appears as a {{ object.model_name }} on {{ object.stats.num_registrations }} registration{{ object.stats.num_registrations|pluralize }}
+    {% if object.stats.first_registration ==  object.stats.last_registration %}
+        on {{ object.stats.first_registration|date:"F j, Y" }}.
+    {% else %}
+        from {{ object.stats.first_registration|date:"F j, Y" }} to {{ object.stats.last_registration|date:"F j, Y" }}.
+    {% endif %}
+    <br />
+{% elif object.model_name == 'registration' %}
+    Filed on {{ object.stats.start_time|date:"F j, Y" }} about
+    {% for item in object.stats.issues %}{% if forloop.first %}{% else %}{% if forloop.last %} and {% else %}, {% endif %}{% endif %}{{ item.description }}{% endfor %}
+    <br />
 {% endif %}
 <br />
 {% endfor %}
