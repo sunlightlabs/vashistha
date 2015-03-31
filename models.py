@@ -85,7 +85,7 @@ class Lobbyist(Person, ShortUUIDMixin):
 
     @property
     def registrants(self):
-        registrants = itertools.chain.from_iterable([[part.organization for part in participant.event.participants.all() if part.note == 'registrant'] for participant in self.eventparticipant_set.all()])
+        registrants = itertools.chain.from_iterable([[part.organization for part in participant.event.participants.all() if part.note == 'registrant'] for participant in self.eventparticipant_set.all().prefetch_related('event', 'event__participants', 'event__participants__organization')])
         unique_registrants = {org.id : org for org in registrants}
         return [swap_type(registrant, Registrant) for registrant in sorted(unique_registrants.values(), key=lambda org: org.name)]
 
@@ -107,7 +107,7 @@ class Lobbyist(Person, ShortUUIDMixin):
         ]).strip()
 
     objects = LobbyistManager()
-    
+
     # add a way to get to the raw manager -- Django doesn't always make the best decisions about combining the prefiltered manager stuff with new queries
     unfiltered_objects = models.Manager()
 

@@ -166,7 +166,7 @@ class ParticipantView(DisclosureListView):
     def get_queryset(self):
         try:
             self.participant = self.model.filter_by_short_uuid(self.kwargs['short_uuid']).get()
-        except LobbyingRegistration.DoesNotExist:
+        except:
             raise Http404(_("No %(verbose_name)s found matching the query") %
                           {'verbose_name': self.model._meta.verbose_name})
         
@@ -224,7 +224,6 @@ class LobbyistListView(EnhancedOrderableListView):
             most_recent=Max('eventparticipant__event__start_time')
         )
         
-        #).prefetch_related('eventparticipant_set__event__participants__organization')
         return self.get_ordered_queryset(qs)
 
     def get_context_data(self, *args, **kwargs):
