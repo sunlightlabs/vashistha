@@ -19,4 +19,7 @@ dj-static
 
 redis
 -e git+https://github.com/jokull/haystack-redis.git@master#egg=haystack-redis
+
+elasticsearch
 dj-database-url
+dj-haystack-url
