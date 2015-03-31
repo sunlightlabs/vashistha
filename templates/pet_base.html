@@ -1,0 +1,29 @@
+{% extends "dryrub/base.html" %}
+{% load staticfiles %}
+
+{% block sitecss %}
+<link rel="stylesheet" href="{% static 'vashistha_style.css' %}" />
+{% endblock sitecss %}
+
+{# override search #}
+{% block search %}{% endblock search %}
+
+{% block pagetitle %}Post-Employment Notifications | {% endblock %}
+
+{% block main %}
+
+<div id="contentHeader" class="clearfix">
+    <h2 class="RTh2">Post-Employment Notifications</h2>
+</div>
+
+<div class="module">
+{% block vashistha_main %}
+{% endblock %}
+</div>
+
+{% endblock %}
+
+{% block sitejs %}
+{{ block.super }}
+<script type="text/javascript" src="{% static 'ss_sort.js' %}"></script>
+{% endblock %}

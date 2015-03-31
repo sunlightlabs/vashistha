@@ -23,7 +23,7 @@
         </form>
         
         <div class="clear"></div>
-        <span class="tip">Search for a country, person or keyword</span>
+        <span class="tip">Search for a person, organization or issue</span>
     </div>
     <h2 class="RTh2">Real-Time Lobbying Registrations</h2>
 </div>
@@ -49,27 +49,5 @@
 
 {% block sitejs %}
 {{ block.super }}
-<script type="text/javascript">
-(function($) {
-  $('table.server-sortable').each(function() {
-    var $table = $(this);
-    var ordering = $table.attr('data-ordering'),
-        order_by = $table.attr('data-order-by');
-
-    $table.find('th.sort').each(function() {
-      var $th = $(this);
-      if ($th.attr('data-label') == order_by) {
-        $th.addClass(ordering == "asc" ? "tablesorter-headerAsc" : "tablesorter-headerDesc");
-        $th.on('click', function() {
-          document.location.search = "?order_by=" + order_by + "&ordering=" + (ordering == "asc" ? "desc" : "asc");
-        })
-      } else {
-        $th.on('click', function() {
-          document.location.search = "?order_by=" + $th.attr('data-label');
-        })
-      }
-    })
-  })
-})(jQuery);
-</script>
+<script type="text/javascript" src="{% static 'ss_sort.js' %}"></script>
 {% endblock %}

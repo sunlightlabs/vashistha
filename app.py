@@ -246,7 +246,7 @@ class LobbyistListView(EnhancedOrderableListView):
         return context
 
 
-# search
+## Search
 from haystack.query import SearchQuerySet
 @djmicro.route(r'^lobbying/search$', name='search')
 class SearchView(ListView):
@@ -328,7 +328,33 @@ class SearchView(ListView):
         context['object_list'] = object_list
         return context
 
+## Post-employment tracker
 
+@djmicro.route(r'^post-employment$', name='search')
+class PETListView(EnhancedOrderableListView):
+    template_name = 'templates/pet_list.html'
+    orderable_columns = ('last_name', 'start_time', 'end_time', 'office', 'body', 'days_left')
+    orderable_columns_default = 'days_left'
+
+    def get_queryset(self):
+        return self.get_ordered_queryset(PostEmploymentRegistration.objects.all().prefetch_related('sources', 'participants').distinct('id'))
+
+    def get_ordered_queryset(self, queryset=None):
+        get_order_by = self.request.GET.get("order_by")
+
+        order_by = get_order_by if get_order_by in self.get_orderable_columns() else self.get_orderable_columns_default()
+
+        self.order_by = order_by
+        self.ordering = self.request.GET.get("ordering", self.order_by_default.get(self.order_by, "asc"))
+
+        order_by = self.order_mapping.get(order_by, order_by)
+        
+        reverse = self.ordering == "desc"
+
+        # we just sort everything in-memory, because not everything is handy in the database
+        return sorted([item.as_row() for item in queryset], key=lambda item: item[order_by], reverse=reverse)
+
+        
 
 # make a couple of other modules visible to Django
 import models, migrations, search_indexes

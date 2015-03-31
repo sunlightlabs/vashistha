@@ -90,7 +90,7 @@
     float: right;
     margin-top: 20px;
 }
-.main-reg-table .export-links {
+.main-reg-table .export-links, .pet .export-links {
     float: right;
 }
 .export-links a.rss-download, .export-links a.csv-download {
@@ -98,6 +98,10 @@
     background-repeat: no-repeat;
     background-position: 10px 0;
 }
+.pet table {
+    margin-top: 10px !important;
+}
+
 
 /* search styles poached from brisket */
 .search-results .result-rows { border-top: 1px dotted #e6e6e4; }

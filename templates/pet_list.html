@@ -1,0 +1,50 @@
+{% extends "templates/pet_base.html" %}
+
+{% load staticfiles %}
+
+{% block vashistha_main %}
+<div class="pet">
+
+<div id="description">
+    <p>The <a href="http://www.gpo.gov/fdsys/pkg/PLAW-110publ81/html/PLAW-110publ81.htm">Honest Leadership and Open Government Act of 2007</a> requires the House clerk and the secretary of the Senate to notify departing members and staffers of any applicable post-employment restrictions and to post on their websites a list of these notifications.</p>
+    <p>This page combines those Senate and House lists and makes it easier to see individuals whose restriction periods are ending soon. In addition, <a href="">an RSS feed</a> is available to keep track of whose restrictions will be expiring.</p>
+</div>
+
+<div class="clear"></div>
+
+<div class="export-links">
+    <a class="rss-download" href="{{ view.rss_path }}" style="background-image: url('{% static 'feed-icon-14x14.png' %}')">Subscribe</a>
+    <a class="csv-download" href="{{ view.csv_path }}" style="background-image: url('{% static 'icon_csv.gif' %}')">Download</a>
+</div>
+
+<div class="clear"></div>
+
+<table id="mainPageTable" class="server-sortable" data-ordering="{{ ordering }}" data-order-by="{{ order_by }}">
+    <thead>
+        <tr id="titles">
+            <th class="sort" data-label="last_name">Name</th>
+            <th class="sort" data-label="body">Body</th>
+            <th>Office</th>
+            <th class="sort" data-label="start_time">Begin</th>
+            <th class="sort" data-label="end_time">End</th>
+            <th class="sort" data-label="days_left">Days Left</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for obj in object_list %}
+        <tr class="{% cycle 'even' 'odd' %}">
+            <td>{{ obj.name }}</td>
+            <td>{{ obj.body }}</td>
+            <td>{{ obj.office }}</td>
+            <td class="date-field">{{ obj.start_time|date:"M. j, Y" }}</td>
+            <td class="date-field">{{ obj.end_time|date:"M. j, Y" }}</td>
+            <td>{% if obj.days_left_real >= 0 %}{{ obj.days_left }}{% endif %}</td>
+            <td><a href="{% url 'registration-detail' obj.pk %}"><small>[permalink]</small></a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</div>
+{% endblock %}

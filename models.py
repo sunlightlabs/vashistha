@@ -2,7 +2,7 @@ import itertools
 from opencivicdata.models import *
 from django.db import models
 
-import uuid, shortuuid, json
+import uuid, shortuuid, json, re, datetime
 
 def swap_type(obj, new_type):
     o = new_type()
@@ -164,3 +164,50 @@ class SearchIssue(models.Model):
 
     id = models.CharField(max_length=8, primary_key=True)
     description = models.TextField()
+
+# post-employment
+import name_cleaver
+
+class PostEmploymentRegistrationManager(models.Manager):
+    def get_queryset(self):
+        return super(PostEmploymentRegistrationManager, self).get_queryset().filter(classification="post_employment")
+
+lowercase_letters = re.compile(r'[a-z]+')
+class PostEmploymentRegistration(Event, ShortUUIDMixin):
+    class Meta:
+        proxy = True
+        app_label = 'opencivicdata'
+
+    objects = PostEmploymentRegistrationManager()
+
+    def as_row(self):
+        office = json.loads(self.extras)['office_name']
+        if not lowercase_letters.findall(office):
+            office = office.title()
+
+        source_url = self.sources.all()[0].url
+
+        original_name = self.participants.all()[0].name
+
+        # fix the stupid thing with the house names having extra commas
+        parts = original_name.split(',')
+        to_parse = original_name if len(parts) <= 2 else "".join([",".join(parts[:2])] + parts[2:])
+
+        parsed = name_cleaver.IndividualNameCleaver(to_parse).parse()
+
+        days_left = (self.end_time.date() - datetime.datetime.now().date()).days
+        days_left_s = days_left if days_left >= 0 else (-1 * days_left) + 1000000
+        
+        return {
+            'name': parsed.name_str(),
+            'last_name': parsed.last,
+            'original_name': original_name,
+            'start_time': self.start_time,
+            'end_time': self.end_time,
+            'office': office,
+            'source_url': source_url,
+            'body': 'Senate' if 'senate.gov' in source_url else 'House',
+            'days_left_real': days_left,
+            'days_left': days_left_s,
+            'pk': self.short_uuid
+        }

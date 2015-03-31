@@ -5,6 +5,7 @@ Django==1.7.6
 
 -e git+https://github.com/sunlightlabs/dryrub.git@rtlobbying#egg=dryrub
 
+name_cleaver
 jsonfield
 djorm-pgarray
 django-uuidfield
