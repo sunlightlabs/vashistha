@@ -107,6 +107,9 @@ class Lobbyist(Person, ShortUUIDMixin):
         ]).strip()
 
     objects = LobbyistManager()
+    
+    # add a way to get to the raw manager -- Django doesn't always make the best decisions about combining the prefiltered manager stuff with new queries
+    unfiltered_objects = models.Manager()
 
 
 ## Registrant

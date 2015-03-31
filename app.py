@@ -218,11 +218,33 @@ class LobbyistListView(EnhancedOrderableListView):
 
     def get_queryset(self):
         # I *think* this annotation does the right thing, per https://docs.djangoproject.com/en/1.7/topics/db/aggregation/#order-of-annotate-and-filter-clauses , but should recheck with more data
-        qs = Lobbyist.objects.filter(eventparticipant__note="lobbyist", eventparticipant__event__classification="registration").annotate(
+        qs = Lobbyist.unfiltered_objects.values('id').filter(eventparticipant__note="lobbyist", eventparticipant__event__classification="registration").annotate(
             num_registrations=Count('eventparticipant__event'),
             most_recent=Max('eventparticipant__event__start_time')
-        ).prefetch_related('eventparticipant_set', 'eventparticipant_set__event', 'eventparticipant_set__event__participants', 'eventparticipant_set__event__participants__organization')
+        )
+        
+        #).prefetch_related('eventparticipant_set__event__participants__organization')
         return self.get_ordered_queryset(qs)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(LobbyistListView, self).get_context_data(*args, **kwargs)
+
+        # our object list isn't really an object list because of the hackery to get the queries to perform sanely, realize it again
+        object_dict = {obj['id']: dict(order=i, **obj) for i, obj in enumerate(context['object_list'])}
+        qs = Lobbyist.unfiltered_objects.filter(id__in=object_dict.keys())\
+            .prefetch_related('eventparticipant_set__event__participants__organization')
+        
+        new_object_list = list(qs)
+
+        # copy the annotations back
+        for obj in qs:
+            obj.num_registrations = object_dict[obj.id]['num_registrations']
+            obj.most_recent = object_dict[obj.id]['most_recent']
+
+        # match the original order, and save it back into the context
+        context['object_list'] = sorted(new_object_list, key=lambda obj: object_dict[obj.id]['order'])
+        return context
+
 
 # search
 from haystack.query import SearchQuerySet
