@@ -283,7 +283,6 @@ class SearchView(ListView):
                 .values('person_id', 'organization_id', 'note')\
                 .annotate(num_registrations=Count('event_id'), first_registration=Min('event__start_time'), last_registration=Max('event__start_time'))
             result_stats.update({(participant['note'], participant['person_id'] if participant['note'] == 'lobbyist' else participant['organization_id']) : participant for participant in participant_stats_list})
-        print result_stats
 
         # same with issues
         # there's some crazy hackery here because unrolling Postgres arrays and aggregating their contents turns out to be a huge pain
