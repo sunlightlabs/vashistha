@@ -139,7 +139,8 @@ class ParticipantListView(ListView):
     def get_context_data(self, *args, **kwargs):
         context_data = super(ParticipantListView, self).get_context_data(*args, **kwargs)
         nonletters = re.compile('[^A-Z0-9]')
-        context_data['participants_by_alpha'] = [(letter, list(group)) for letter, group in itertools.groupby(self.model.objects.all().distinct().order_by('name'), key=lambda org: nonletters.sub('', org.name.upper())[0])]
+        objects = sorted(self.model.objects.all().only('name').distinct('id'), key=lambda org: org.name.upper())
+        context_data['participants_by_alpha'] = [(letter, list(group)) for letter, group in itertools.groupby(objects, key=lambda org: org.name[0].upper())]
         context_data['participant_type'] = self.participant_type
         return context_data
 
