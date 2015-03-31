@@ -1,6 +1,10 @@
 from haystack import indexes
 from models import *
 
+class DistinctMixin(indexes.SearchIndex):
+    def index_queryset(self, using=None):
+        return self.get_model().objects.all().distinct('id')
+
 class IssueIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, model_attr='description')
     
@@ -19,19 +23,19 @@ class IssueIndex(indexes.SearchIndex, indexes.Indexable):
         data['boost'] = 1.5
         return data
 
-class RegistrantIndex(indexes.SearchIndex, indexes.Indexable):
+class RegistrantIndex(DistinctMixin, indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, model_attr='name')
 
     def get_model(self):
         return Registrant
 
-class ClientIndex(indexes.SearchIndex, indexes.Indexable):
+class ClientIndex(DistinctMixin, indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, model_attr='name')
 
     def get_model(self):
         return Client
 
-class LobbyistIndex(indexes.SearchIndex, indexes.Indexable):
+class LobbyistIndex(DistinctMixin, indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, model_attr='search_document')
 
     def get_model(self):
@@ -44,7 +48,7 @@ class LobbyingRegistrationIndex(indexes.SearchIndex, indexes.Indexable):
         return LobbyingRegistration
 
     def index_queryset(self, using=None):
-        return LobbyingRegistration.objects.all().prefetch_related('participants__organization', 'participants__person', 'agenda')
+        return LobbyingRegistration.objects.all().distinct('id').prefetch_related('participants__organization', 'participants__person', 'agenda')
 
     def prepare(self, obj):
         data = super(LobbyingRegistrationIndex, self).prepare(obj)
