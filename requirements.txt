@@ -3,7 +3,7 @@ Django==1.7.6
 
 -e git+https://github.com/apendleton/python-opencivicdata-django.git@disclosures#egg=opencivicdata
 
--e git+https://github.com/sunlightlabs/dryrub.git@rtlobbying#egg=dryrub
+-e git+https://github.com/sunlightlabs/dryrub.git@master#egg=dryrub
 
 name_cleaver
 jsonfield
