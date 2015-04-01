@@ -19,7 +19,7 @@ gunicorn
 dj-static
 
 redis
--e git+https://github.com/jokull/haystack-redis.git@master#egg=haystack-redis
+django-redis
 
 elasticsearch
 dj-database-url
