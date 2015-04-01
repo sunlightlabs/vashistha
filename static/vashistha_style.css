@@ -45,6 +45,9 @@
 .lobbyist-name {
     min-width: 120px;
 }
+.days-left-header {
+    min-width: 90px;
+}
 
 .issue-list, .participant-group {
     column-count: 3;

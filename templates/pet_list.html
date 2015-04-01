@@ -13,8 +13,8 @@
 <div class="clear"></div>
 
 <div class="export-links">
-    <a class="rss-download" href="{{ view.rss_path }}" style="background-image: url('{% static 'feed-icon-14x14.png' %}')">Subscribe</a>
-    <a class="csv-download" href="{{ view.csv_path }}" style="background-image: url('{% static 'icon_csv.gif' %}')">Download</a>
+    <a class="rss-download" href="{% url 'pet-feed' %}" style="background-image: url('{% static 'feed-icon-14x14.png' %}')">Subscribe</a>
+    <a class="csv-download" href="{% url 'pet-api' 'csv' %}" style="background-image: url('{% static 'icon_csv.gif' %}')">Download</a>
 </div>
 
 <div class="clear"></div>
@@ -27,7 +27,7 @@
             <th>Office</th>
             <th class="sort" data-label="start_time">Begin</th>
             <th class="sort" data-label="end_time">End</th>
-            <th class="sort" data-label="days_left">Days Left</th>
+            <th class="sort days-left-header" data-label="days_left">Days Left</th>
             <th></th>
         </tr>
     </thead>
