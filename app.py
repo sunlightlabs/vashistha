@@ -11,9 +11,9 @@ else:
 import djmicro, os, re
 djmicro.configure([global_settings, local_settings], app_name="vashistha")
 
-from django.views.generic import TemplateView, ListView, RedirectView
+from django.views.generic import View, TemplateView, ListView, RedirectView
 from django.core.urlresolvers import reverse
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.template import Context, loader
 from braces.views import OrderableListMixin
 from django.db.models import Count, Max, Min, Q
@@ -21,6 +21,7 @@ from django.utils.text import slugify
 
 from models import *
 from mixins import *
+from util import *
 
 @djmicro.route(r'^$')
 class Index(RedirectView):
@@ -337,9 +338,9 @@ class PETListView(EnhancedOrderableListView):
     orderable_columns_default = 'days_left'
 
     def get_queryset(self):
-        return self.get_ordered_queryset(PostEmploymentRegistration.objects.all().prefetch_related('sources', 'participants').distinct('id'))
+        return self.get_ordered_queryset(get_all_pet_records())
 
-    def get_ordered_queryset(self, queryset=None):
+    def get_ordered_queryset(self, rows=None):
         get_order_by = self.request.GET.get("order_by")
 
         order_by = get_order_by if get_order_by in self.get_orderable_columns() else self.get_orderable_columns_default()
@@ -352,7 +353,7 @@ class PETListView(EnhancedOrderableListView):
         reverse = self.ordering == "desc"
 
         # we just sort everything in-memory, because not everything is handy in the database
-        return sorted([item.as_row() for item in queryset], key=lambda item: item[order_by], reverse=reverse)
+        return sorted(rows, key=lambda item: item[order_by], reverse=reverse)
 
 @djmicro.route(r'^post-employment/(?P<short_uuid>\w+)$', name='pet-detail')
 class PETDetailView(TemplateView):
@@ -367,6 +368,19 @@ class PETDetailView(TemplateView):
                           {'verbose_name': LobbyingRegistration._meta.verbose_name})
         context['object'] = obj.as_row()
         return context
+
+from old_pet_stuff import PostEmploymentFeed, willard_postemployment_api
+djmicro.route(r'^post-employment.rss$', name='pet-feed')(PostEmploymentFeed())
+djmicro.route(r'^post-employment.(csv|json)$', name='pet-api')(willard_postemployment_api)
+
+## Utility endpoints
+
+@djmicro.route(r'^vashistha_cache_clear$', name='cache-clear')
+class CacheClearView(View):
+    def get(self, *args, **kwargs):
+        from django.core.cache import cache as _djcache
+        _djcache.clear()
+        return HttpResponse("OK")
         
 
 # make a couple of other modules visible to Django

@@ -24,3 +24,4 @@ redis
 elasticsearch
 dj-database-url
 dj-haystack-url
+django-cache-url

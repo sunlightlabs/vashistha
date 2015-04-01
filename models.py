@@ -201,6 +201,8 @@ class PostEmploymentRegistration(Event, ShortUUIDMixin):
         return {
             'name': parsed.name_str(),
             'last_name': parsed.last,
+            'middle_name': parsed.middle,
+            'first_name': parsed.first,
             'original_name': original_name,
             'start_time': self.start_time,
             'end_time': self.end_time,
@@ -211,3 +213,10 @@ class PostEmploymentRegistration(Event, ShortUUIDMixin):
             'days_left': days_left_s,
             'pk': self.short_uuid
         }
+
+# a convenience method to grab and cache all the PET rows
+from util import cache
+@cache(seconds=86400 * 365)
+def get_all_pet_records():
+    queryset = PostEmploymentRegistration.objects.all().prefetch_related('sources', 'participants').distinct('id')
+    return [item.as_row() for item in queryset]
