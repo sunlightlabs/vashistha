@@ -1,0 +1,34 @@
+{% extends "templates/pet_base.html" %}
+
+{% block pagetitle %}Post-employment notification: {{ object.name }} | {{ block.super }}{% endblock %}
+
+{% block vashistha_main %}
+<h3>Post-employment notification: {{ object.name }}</h3>
+<dl class="object-metadata">
+    <dt>Name:</dt>
+    <dd>{{ object.name }}</dd>
+
+    <dt>Body:</dt>
+    <dd>{{ object.body }}</dd>
+
+    <dt>Office:</dt>
+    <dd>{{ object.office }}</dd>
+
+    <dt>Begin date:</dt>
+    <dd>{{ object.start_time|date:"F j, Y" }}</dd>
+
+    <dt>End date:</dt>
+    <dd>{{ object.end_time|date:"F j, Y" }}</dd>
+
+    {% if object.days_left_real >= 0 %}
+    <dt>Days until end date:</dt>
+    <dd>{{ object.days_left }}</dd>
+    {% else %}
+    <dt>Days since end date:</dt>
+    <dd>{{ object.days_left|add:"-1000000" }}</dd>
+    {% endif %}
+
+    <dt>Source document:</dt>
+    <dd><a href="{{ object.source_url }}">{{ object.body }} disclosure file</a></dd>
+</dl>
+{% endblock %}

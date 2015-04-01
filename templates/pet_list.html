@@ -40,7 +40,7 @@
             <td class="date-field">{{ obj.start_time|date:"M. j, Y" }}</td>
             <td class="date-field">{{ obj.end_time|date:"M. j, Y" }}</td>
             <td>{% if obj.days_left_real >= 0 %}{{ obj.days_left }}{% endif %}</td>
-            <td><a href="{% url 'registration-detail' obj.pk %}"><small>[permalink]</small></a></td>
+            <td><a href="{% url 'pet-detail' obj.pk %}"><small>[permalink]</small></a></td>
         </tr>
         {% endfor %}
     </tbody>

@@ -330,7 +330,7 @@ class SearchView(ListView):
 
 ## Post-employment tracker
 
-@djmicro.route(r'^post-employment$', name='search')
+@djmicro.route(r'^post-employment$', name='pet-list')
 class PETListView(EnhancedOrderableListView):
     template_name = 'templates/pet_list.html'
     orderable_columns = ('last_name', 'start_time', 'end_time', 'office', 'body', 'days_left')
@@ -354,6 +354,19 @@ class PETListView(EnhancedOrderableListView):
         # we just sort everything in-memory, because not everything is handy in the database
         return sorted([item.as_row() for item in queryset], key=lambda item: item[order_by], reverse=reverse)
 
+@djmicro.route(r'^post-employment/(?P<short_uuid>\w+)$', name='pet-detail')
+class PETDetailView(TemplateView):
+    template_name = 'templates/pet_detail.html'
+
+    def get_context_data(self, short_uuid):
+        context = super(PETDetailView, self).get_context_data()
+        try:
+            obj = PostEmploymentRegistration.filter_by_short_uuid(short_uuid).prefetch_related('sources', 'participants').distinct('id').get()
+        except LobbyingRegistration.DoesNotExist:
+            raise Http404(_("No %(verbose_name)s found matching the query") %
+                          {'verbose_name': LobbyingRegistration._meta.verbose_name})
+        context['object'] = obj.as_row()
+        return context
         
 
 # make a couple of other modules visible to Django
