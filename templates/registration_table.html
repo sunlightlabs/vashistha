@@ -18,6 +18,8 @@
             <td>
             {% if obj.registrants %}
                 <a href="{% url 'registrant-detail' obj.registrants.0.name|slugify obj.registrants.0.short_uuid %}">{{ obj.registrants.0.name }}
+            {% else %}
+                Self-employed
             {% endif %}
             </td>
 
