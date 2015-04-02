@@ -54,7 +54,7 @@ class DisclosureListView(EnhancedOrderableListView):
     def paginate_queryset(self, queryset, page_size):
         paginator, page, object_list, is_paginated = super(DisclosureListView, self).paginate_queryset(queryset, page_size)
 
-        object_list = sorted(LobbyingRegistration.objects.filter(id__in=object_list.values('event_id')).prefetch_related('participants__organization', 'agenda', 'disclosurerelatedentity_set__disclosure'), key=lambda lr: getattr(lr, self.order_by + "s")[0].name if self.order_by in ('client', 'registrant') else lr.submitted_date)
+        object_list = sorted(LobbyingRegistration.objects.filter(id__in=object_list.values('event_id')).prefetch_related('participants__organization', 'agenda', 'disclosurerelatedentity_set__disclosure'), key=lambda lr: getattr(lr, self.order_by + "s")[0].name if self.order_by in ('client', 'registrant') else lr.submitted_date, reverse=self.ordering == 'desc')
 
         return (paginator, page, object_list, is_paginated)
 
