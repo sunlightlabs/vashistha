@@ -33,7 +33,7 @@ class DisclosureRssMixin(object):
                 title='%s registered to lobby for %s' % (registrants[0].name if registrants else "A registrant", clients[0].name if clients else "a client"),
                 link=self.request.build_absolute_uri(reverse('registration-detail', args=(obj.short_uuid,))),
                 description=template.render(Context({'object': obj})).replace("\n", " "),
-                pubdate=obj.start_time
+                pubdate=obj.submitted_date
             )
 
         response = HttpResponse(content_type="application/rss+xml")
@@ -67,7 +67,7 @@ class DisclosureCsvMixin(object):
                 registration_type=filing_types_by_code[filing_info.get('filingTypeID', 1)]['name'],
                 client=clients[0].name if clients else "",
                 registrant=registrants[0].name if registrants else "",
-                received=obj.start_time.isoformat(),
+                received=obj.submitted_date.isoformat(),
                 issues="|".join([issue['description'] for issue in obj.issues]),
                 specific_issue="; ".join([specific_issue for specific_issue in obj.specific_issues])
             ))
