@@ -54,6 +54,10 @@ class LobbyingRegistration(Event, ShortUUIDMixin):
         return list(itertools.chain.from_iterable((item.notes for item in self.agenda.all())))
 
     @property
+    def submitted_date(self):
+        return self.disclosurerelatedentity_set.all()[0].disclosure.submitted_date
+
+    @property
     def search_document(self):
         return u"\n".join([
             u"\n".join([registrant.name for registrant in self.registrants]),

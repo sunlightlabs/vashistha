@@ -34,9 +34,9 @@ class DisclosureListView(EnhancedOrderableListView):
     paginate_by = 10
     template_name = 'templates/registration_list.html'
     orderable_columns = ('start_time', 'client', 'registrant')
-    orderable_columns_default = 'start_time'
-    order_by_default = {'start_time': 'desc'}
-    order_mapping = {'client': 'name', 'registrant': 'name'}
+    orderable_columns_default = 'submitted_date'
+    order_by_default = {'submitted_date': 'desc'}
+    order_mapping = {'client': 'name', 'registrant': 'name', 'submitted_date': 'disclosure__submitted_date'}
 
     section = "registrations"
 
@@ -46,16 +46,15 @@ class DisclosureListView(EnhancedOrderableListView):
 
         order_by = self.request.GET.get('order_by', 'start_time')
         if order_by in ('client', 'registrant'):
-            qs = EventParticipant.objects.filter(event_id__in=initial_qs, note=order_by)
+            qs = EventParticipant.objects.filter(event__in=initial_qs, note=order_by)
         else:
-            qs = initial_qs.prefetch_related('participants__organization', 'agenda')
+            qs = DisclosureRelatedEntity.objects.filter(event__in=initial_qs)
         return self.get_ordered_queryset(qs)
 
     def paginate_queryset(self, queryset, page_size):
         paginator, page, object_list, is_paginated = super(DisclosureListView, self).paginate_queryset(queryset, page_size)
 
-        if self.order_by in ('client', 'registrant'):
-            object_list = sorted(LobbyingRegistration.objects.filter(id__in=object_list.values('event_id')).prefetch_related('participants__organization', 'agenda'), key=lambda lr: getattr(lr, self.order_by + "s")[0].name)
+        object_list = sorted(LobbyingRegistration.objects.filter(id__in=object_list.values('event_id')).prefetch_related('participants__organization', 'agenda', 'disclosurerelatedentity_set__disclosure'), key=lambda lr: getattr(lr, self.order_by + "s")[0].name if self.order_by in ('client', 'registrant') else lr.submitted_date)
 
         return (paginator, page, object_list, is_paginated)
 
@@ -91,7 +90,7 @@ class DisclosureView(TemplateView):
     def get_context_data(self, short_uuid):
         context = super(DisclosureView, self).get_context_data()
         try:
-            obj = LobbyingRegistration.filter_by_short_uuid(short_uuid).prefetch_related('participants__organization', 'participants__person', 'agenda').get()
+            obj = LobbyingRegistration.filter_by_short_uuid(short_uuid).prefetch_related('participants__organization', 'participants__person', 'agenda', 'disclosurerelatedentity_set__disclosure').get()
         except LobbyingRegistration.DoesNotExist:
             raise Http404(_("No %(verbose_name)s found matching the query") %
                           {'verbose_name': LobbyingRegistration._meta.verbose_name})

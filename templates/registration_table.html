@@ -3,7 +3,7 @@
 <table id="mainPageTable" class="server-sortable" data-ordering="{{ ordering }}" data-order-by="{{ order_by }}">
     <thead>
         <tr id="titles">
-            <th class="sort" data-label="start_time">Date</th>
+            <th class="sort" data-label="submitted_date">Date</th>
             <th class="sort" data-label="registrant">Registrant</th>
             <th class="sort" data-label="client">Client</th>
             <th>Issues</th>
@@ -13,7 +13,7 @@
     <tbody>
         {% for obj in object_list %}
         <tr class="{% cycle 'even' 'odd' %}">
-            <td class="date-field">{{ obj.start_time|date:"M. j, Y" }}</td>
+            <td class="date-field">{{ obj.submitted_date|date:"M. j, Y" }}</td>
 
             <td>
             {% if obj.registrants %}
